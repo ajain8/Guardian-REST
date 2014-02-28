@@ -4,8 +4,15 @@
 		<link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.0.2/css/bootstrap.min.css"> <!-- load bootstrap css -->
 		<link rel="stylesheet" href="//netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.min.css"> <!-- load fontawesome -->
 		<script type="text/javascript" src="http://maps.google.com/maps/api/js?sensor=true"></script>
+
+		
 		<script type="text/javascript">
-			var loadMap = function() 
+			var auto_refresh = setInterval(function () {
+			   loadMap();
+			}, 10000); // refresh every 15000 milliseconds
+
+		
+			function loadMap() 
 			{
 				var myOptions = {
 				  center: new google.maps.LatLng(33.775509,-84.396379),
@@ -14,10 +21,12 @@
 				};
 				map = new google.maps.Map(document.getElementById("map"),
 					myOptions);	
+
 				var locations =[
 					['GaTech',33.775509,-84.396379],
 					['Marta Station', 33.780717,-84.386637]
 					];	
+
 				var myMarker, i;
 				for( i = 0; i < locations.length; i++)
 				{
@@ -26,7 +35,8 @@
 					map: map, // references the map object you defined earlier
 					title: locations[i][0], // a title that will appear on hover
 	    			});
-				} 			
+				} 	
+				console.log("hi");		
 			};
 			window.onload= loadMap;
 		</script>
