@@ -1,0 +1,76 @@
+<html>
+	<head> 
+		<title>GeoHash</title>
+		<link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.0.2/css/bootstrap.min.css"> <!-- load bootstrap css -->
+		<link rel="stylesheet" href="//netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.min.css"> <!-- load fontawesome -->
+		<script type="text/javascript" src="http://maps.google.com/maps/api/js?sensor=true"></script>
+
+		
+		<script type="text/javascript">
+			var auto_refresh = setInterval(function () {
+			   loadMap();
+			}, 10000); // refresh every 15000 milliseconds
+
+		
+			function loadMap() 
+			{
+				var myOptions = {
+				  center: new google.maps.LatLng(33.775509,-84.396379),
+				  zoom: 13,
+				  mapTypeId: google.maps.MapTypeId.ROADMAP
+				};
+				map = new google.maps.Map(document.getElementById("map"),
+					myOptions);	
+
+				var locations =[
+					['GaTech',33.775509,-84.396379],
+					['Marta Station', 33.780717,-84.386637]
+					];	
+
+				var myMarker, i;
+				for( i = 0; i < locations.length; i++)
+				{
+					marker = new google.maps.Marker({
+					position: new google.maps.LatLng(locations[i][1], locations[i][2]), // Example Lat/Long
+					map: map, // references the map object you defined earlier
+					title: locations[i][0], // a title that will appear on hover
+	    			});
+				} 	
+				console.log("hi");		
+			};
+			window.onload= loadMap;
+		</script>
+	</head>
+	<body>
+		<div class = "container">
+		<div class="col-sm-6 col-sm-offset-4">
+			<h1><span class="fa"></span> Ching's Session</h1>
+		</div>
+		<div id="map" style="width:1000px;height:300px;"></div>
+
+
+		<div><span class="fa"></span>
+			<b>Start Date: 
+		</div>
+		<div><span class="fa"></span>
+			<b>End Date: 
+		</div>
+		<table class="table table-striped table-bordered table-condensed text-center"; class ="fa"; style="width:1000px">
+		<th class = "text-center">Time Stamp</th>
+		<th class = "text-center">Location</th> 
+		<th class = "text-center">Longitude</th> 
+		<th class = "text-center">Latitude</th> 
+		
+			<% for(var i=0; i<5; i++) { %>
+			<tr>
+	            <td><%= i %></td>
+	            <td>School</td>
+	            <td><%= i %></td>
+	            <td><%= i %></td>
+	        </tr>
+	    	<% } %>	
+		
+		</table>
+		</div>
+	</body>
+</html>
