@@ -1,5 +1,10 @@
-module.exports = function(app, passport) {
+// load up the apikey and user model
+var User       		= require('../app/models/user');
+var Session       		= require('../app/models/session');
+var uuid = require('node-uuid');
+var express = require('express');
 
+module.exports = function(app, passport) {
 	// =====================================
 	// HOME PAGE (with login links) ========
 	// =====================================
@@ -64,7 +69,77 @@ module.exports = function(app, passport) {
 		req.logout();
 		res.redirect('/');
 	});
+	app.post('/api/login', auth, function(req, res){
+		return res.json(true);
+	});
+
+	app.post('/api/createSession', auth, function(req, res){
+		var newSession = new Session();
+		console.log(JSON.stringify(req.body.startDate));
+		newSession.session.email = req.body.email;
+		newSession.session.startDate = req.body.startDate;
+		newSession.session.endDate = req.body.endDate;
+		newSession.session.finalLocation = req.body.finalLocation;
+		newSession.session.locationsArray = req.body.locationArray;
+		newSession.session.guardianContact = req.body.guardianContact;
+		newSession.save(function(err) {
+			if (!err) {
+			      return console.log("session created");
+			    } else {
+			      throw err;
+			    }
+		});
+		return res.send(newSession);
+	});
+
+	app.get('/api/getSession/:id', function(req, res){
+		return Session.findById(req.params.id, function (err, session) {
+			if (!err) {
+				return res.send(session);
+			} else {
+				return console.log(err);
+			}
+		});
+	});
+
+
+	app.get('/getSession/:id', function(req, res){
+		return Session.findById(req.params.id, function (err, session) {
+			if (!err) {
+				res.render('session.ejs', {
+					session : session
+				});
+			} else {
+				return console.log(err);
+			}
+		});
+	});
+
+	// app.post('/api/updateSession/:id', function(req, res){
+	// 	var newLocation = req.body.location;
+	// 	io.sockets.emit("updatedLocationArray", {location:newLocation});
+	// });
 };
+
+var auth = express.basicAuth(function(user, pass, callback) {
+        User.findOne({ 'local.email' :  user }, function(err, user) {
+        console.log("Searched user database!");
+        // if there are any errors, return the error before anything else
+        if (err)
+            return callback(null, false);
+
+        // if no user is found, return the message
+        if (!user)
+            return callback(null, false) // req.flash is the way to set flashdata using connect-flash
+
+        // if the user is found but the password is wrong
+        if (!user.validPassword(pass))
+            return callback(null, false); // create the loginMessage and save it to session as flashdata
+
+        // all is well, return successful user
+        return callback(null, true);
+    });
+});
 
 // route middleware to make sure a user is logged in
 function isLoggedIn(req, res, next) {
