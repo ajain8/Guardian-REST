@@ -1,5 +1,5 @@
 function init() {
-
+  
   var serverBaseUrl = document.domain;
 
   /* 
@@ -21,6 +21,19 @@ function init() {
     sessionId = socket.socket.sessionid;
     console.log('Connected ' + sessionId);    
   });
+
+  socket.on('updatedLocationArray', function (data) {
+      var pathArray = window.location.href.split( '/' );
+      var pathCreated = window.location.origin+"/getLocationsArrayForSession/"+pathArray[pathArray.length-1];
+      console.log(pathCreated);
+      // console.log(window.location.origin+"/getLocationsArrayForSession/"+pathArray[pathArray.length-1]);
+       $.get(pathCreated,function(data,status){
+         //alert("Data: " + data + "\nStatus: " + status);
+         console.log(data[0].latitude);
+         loadMap(data);
+      });
+  });
+
 }
 
 $(document).on('ready', init);

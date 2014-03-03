@@ -17,9 +17,9 @@ var sessionSchema = mongoose.Schema({
         	longitude: Number
         },
         locationsArray   : [{
+            timeStamp: Number,
         	latitude: Number,
-        	longitude: Number,
-        	timeStamp: Date
+        	longitude: Number
         }],
         guardianContact    : {
             phone : Number,

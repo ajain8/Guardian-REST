@@ -3,8 +3,10 @@ var User       		= require('../app/models/user');
 var Session       		= require('../app/models/session');
 var uuid = require('node-uuid');
 var express = require('express');
+var clients = {};
+// var _ = require("underscore");
 
-module.exports = function(app, passport) {
+module.exports = function(app, passport, io) {
 	// =====================================
 	// HOME PAGE (with login links) ========
 	// =====================================
@@ -69,14 +71,15 @@ module.exports = function(app, passport) {
 		req.logout();
 		res.redirect('/');
 	});
-	app.post('/api/login', auth, function(req, res){
+	app.post('/api/login', userAuth, function(req, res){
 		return res.json(true);
 	});
 
-	app.post('/api/createSession', auth, function(req, res){
+	app.post('/api/createSession', userAuth, function(req, res){
+		var email = requestEmail(req);
 		var newSession = new Session();
 		console.log(JSON.stringify(req.body.startDate));
-		newSession.session.email = req.body.email;
+		newSession.session.email = email;
 		newSession.session.startDate = req.body.startDate;
 		newSession.session.endDate = req.body.endDate;
 		newSession.session.finalLocation = req.body.finalLocation;
@@ -86,42 +89,136 @@ module.exports = function(app, passport) {
 			if (!err) {
 			      return console.log("session created");
 			    } else {
-			      throw err;
+			      return console.log(err);
 			    }
 		});
 		return res.send(newSession);
 	});
 
 	app.get('/api/getSession/:id', function(req, res){
-		return Session.findById(req.params.id, function (err, session) {
-			if (!err) {
-				return res.send(session);
+		Session.findById(req.params.id, function (err, session) {
+			if (!err && session !=null) {
+				return res.json(session);
 			} else {
-				return console.log(err);
+				return res.send(404);
 			}
 		});
 	});
 
 
 	app.get('/getSession/:id', function(req, res){
-		return Session.findById(req.params.id, function (err, session) {
-			if (!err) {
+		Session.findById(req.params.id, function (err, session) {
+			if (!err && session != null) {
+				console.log("sessionid: "+session._id);
+				io.sockets.on('connection', function (socket) {
+  					clients[session._id] = socket;
+				});
+				//console.log("Client Socket ID: "+clients[session._id].id);
 				res.render('session.ejs', {
 					session : session
 				});
 			} else {
-				return console.log(err);
+				return res.send(404);
 			}
 		});
 	});
 
-	// app.post('/api/updateSession/:id', function(req, res){
-	// 	var newLocation = req.body.location;
-	// 	io.sockets.emit("updatedLocationArray", {location:newLocation});
+	app.get('/getLocationsArrayForSession/:id', function(req, res){
+		Session.findById(req.params.id, function (err, session) {
+			if (!err) {
+				console.log(session.session.locationsArray);
+				return res.json(session.session.locationsArray);
+			} else {
+				return res.send(404);
+			}
+		});
+	});
+
+
+
+	app.post('/api/updateLocationsArrayForSession/:id', userAuth, function(req, res){
+		var email = requestEmail(req);
+		return Session.findById(req.params.id, function (err, session) {
+			if(session === null){
+				return res.send(404);
+			}
+			else if(!err && session.session.email === email){
+				//console.log("Headers: ", req.headers);
+				var newLocation = req.body.location;
+				session.session.locationsArray.push(newLocation);
+				//console.log("Session ID: "+session._id);
+				//console.log("socket id: "+socket.id);
+				//var socket = clients[session._id];
+				session.save(function(err) {
+					if (!err) {
+				      console.log("updated");
+				    } else {
+				      console.log(err);
+				    }
+				});
+
+				io.sockets.emit("updatedLocationArray");
+				// console.log("Client Socket Array: "+clients);
+				return res.json(session);
+			}
+			else {
+				console.log(err)
+				return res.send(401);
+			}
+		});
+	});
+
+	app.post('/api/deleteSession/:id', userAuth, function(req, res){
+		var email = requestEmail(req);
+		return Session.findById(req.params.id, function (err, session) {
+			if(session === null){
+				return res.send(404);
+			}
+			if(!err && session.session.email === email){
+				console.log(session);
+				return session.remove(function(err){
+					if(!err){
+						console.log("removed");
+						return res.send('');
+					}
+					else {
+						console.log(err);
+					}
+				});
+			}
+			else {
+				console.log(err)
+				return res.send(401);
+			}
+		});
+	});
+
+	// io.on("connection", function(socket){
+	// 	socket.on("connect", function(data) {
+	// 		clients[session._id] = socket;
+	// 	});
+
+ //  		socket.on("disconnect", function() {
+  			
+ //  		});
+	// });
+	// io.sockets.on('disconnect', function (socket) {
+
+	// 		clients[session._id] = socket;
 	// });
 };
 
-var auth = express.basicAuth(function(user, pass, callback) {
+var requestEmail = function(req){
+		var auth = req.headers['authorization'];  // auth is in base64(username:password)  so we need to decode the base64
+        var tmp = auth.split(' ');   // Split on a space, the original auth looks like  "Basic Y2hhcmxlczoxMjM0NQ==" and we need the 2nd part
+        var buf = new Buffer(tmp[1], 'base64'); // create a buffer and tell it the data coming in is base64
+        var plain_auth = buf.toString();        // read it back out as a string
+        var creds = plain_auth.split(':');      // split on a ':'
+        var email = creds[0];
+        return email;
+};
+
+var userAuth = express.basicAuth(function(user, pass, callback) {
         User.findOne({ 'local.email' :  user }, function(err, user) {
         console.log("Searched user database!");
         // if there are any errors, return the error before anything else
@@ -137,9 +234,10 @@ var auth = express.basicAuth(function(user, pass, callback) {
             return callback(null, false); // create the loginMessage and save it to session as flashdata
 
         // all is well, return successful user
-        return callback(null, true);
+        return callback(null, user);
     });
 });
+
 
 // route middleware to make sure a user is logged in
 function isLoggedIn(req, res, next) {
