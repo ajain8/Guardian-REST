@@ -71,9 +71,21 @@ module.exports = function(app, passport, io) {
 		req.logout();
 		res.redirect('/');
 	});
-	app.post('/api/login', userAuth, function(req, res){
-		return res.json(true);
+
+	app.post('/api/login', function(req, res, next) {
+	  passport.authenticate('local-login', function(err, user, info) {
+	    if (err) { return next(err); }
+	    if (!user) { return res.json(false); }
+	    req.logIn(user, function(err) {
+	      if (err) { return next(err); }
+	      return res.json(true);
+	    });
+	  })(req, res, next);
 	});
+
+	// app.post('/api/login', userAuth, function(req, res){
+	// 	return res.json(true);
+	// });
 
 	app.post('/api/createSession', userAuth, function(req, res){
 		var email = requestEmail(req);
