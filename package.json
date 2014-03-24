@@ -1,4 +1,4 @@
-  {
+{
   "name": "application-name",
   "main": "server.js",
   "version": "0.0.1",
@@ -16,9 +16,10 @@
     "bcrypt-nodejs": "0.0.3",
     "mongoose-types": "^1.0.3",
     "node-uuid": "~1.4.1",
-    "socket.io": "~0.9.16"
+    "socket.io": "~0.9.16",
+    "moment": "~2.5.1"
   },
-  "engines" : {
+  "engines": {
     "node": "0.10.24"
   }
 }

@@ -87,25 +87,47 @@ module.exports = function(app, passport, io) {
 	// 	return res.json(true);
 	// });
 
-	app.post('/api/createSession', userAuth, function(req, res){
-		var email = requestEmail(req);
-		var newSession = new Session();
-		console.log(JSON.stringify(req.body.startDate));
-		newSession.session.email = email;
-		newSession.session.startDate = req.body.startDate;
-		newSession.session.endDate = req.body.endDate;
-		newSession.session.finalLocation = req.body.finalLocation;
-		newSession.session.locationsArray = req.body.locationArray;
-		newSession.session.guardianContact = req.body.guardianContact;
-		newSession.save(function(err) {
-			if (!err) {
-			      return console.log("session created");
-			    } else {
-			      return console.log(err);
-			    }
-		});
-		return res.send(newSession);
-	});
+	app.post('/api/createSession', isLoggedIn, function(req, res, next){
+			var email = req.user.local.email;
+			var newSession = new Session();
+			console.log(JSON.stringify(req.body.startDate));
+			newSession.session.email = email;
+			newSession.session.startDate = req.body.startDate;
+			newSession.session.endDate = req.body.endDate;
+			newSession.session.finalLocation = req.body.finalLocation;
+			newSession.session.locationsArray = req.body.locationArray;
+			newSession.session.guardianContact = req.body.guardianContact;
+			newSession.save(function(err) {
+				if (!err) {
+				      return console.log("session created");
+				    } else {
+				      return console.log(err);
+				    }
+			});
+			return res.send(newSession.session);
+		}
+	 );
+
+
+	// app.post('/api/createSession', userAuth, function(req, res){
+	// 	var email = requestEmail(req);
+	// 	var newSession = new Session();
+	// 	console.log(JSON.stringify(req.body.startDate));
+	// 	newSession.session.email = email;
+	// 	newSession.session.startDate = req.body.startDate;
+	// 	newSession.session.endDate = req.body.endDate;
+	// 	newSession.session.finalLocation = req.body.finalLocation;
+	// 	newSession.session.locationsArray = req.body.locationArray;
+	// 	newSession.session.guardianContact = req.body.guardianContact;
+	// 	newSession.save(function(err) {
+	// 		if (!err) {
+	// 		      return console.log("session created");
+	// 		    } else {
+	// 		      return console.log(err);
+	// 		    }
+	// 	});
+	// 	return res.send(newSession);
+	// });
 
 	app.get('/api/getSession/:id', function(req, res){
 		Session.findById(req.params.id, function (err, session) {
@@ -148,8 +170,8 @@ module.exports = function(app, passport, io) {
 
 
 
-	app.post('/api/updateLocationsArrayForSession/:id', userAuth, function(req, res){
-		var email = requestEmail(req);
+	app.post('/api/updateLocationsArrayForSession/:id', isLoggedIn, function(req, res){
+			var email = req.user.local.email;
 		return Session.findById(req.params.id, function (err, session) {
 			if(session === null){
 				return res.send(404);
@@ -180,8 +202,8 @@ module.exports = function(app, passport, io) {
 		});
 	});
 
-	app.post('/api/deleteSession/:id', userAuth, function(req, res){
-		var email = requestEmail(req);
+	app.post('/api/deleteSession/:id', isLoggedIn, function(req, res){
+		var email = req.user.local.email;
 		return Session.findById(req.params.id, function (err, session) {
 			if(session === null){
 				return res.send(404);
@@ -191,7 +213,7 @@ module.exports = function(app, passport, io) {
 				return session.remove(function(err){
 					if(!err){
 						console.log("removed");
-						return res.send('');
+						return res.send("Session Removed");
 					}
 					else {
 						console.log(err);

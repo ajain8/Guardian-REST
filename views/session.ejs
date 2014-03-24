@@ -7,10 +7,17 @@
 		<script type="text/javascript" src='/javascripts/socket.io.min.js'></script>    
 		<script type="text/javascript" src='/javascripts/jquery-1.9.1.min.js'></script>    
 		<script type="text/javascript" src='/javascripts/index.js'></script>    
+		<script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/moment.js/2.5.1/moment.min.js"></script>
 
-		
+
 		<script type="text/javascript">
-
+		     function cleanDates()
+		     {	         	
+		     	var startDate = document.getElementById("startDate");
+		     	startDate.innerHTML=moment(startDate.innerHTML).format("dddd, MMMM Do YYYY");
+		     	var endDate = document.getElementById("endDate");
+		     	endDate.innerHTML=moment(endDate.innerHTML).format("dddd, MMMM Do YYYY");
+		     }
 			function loadMap(locationsArray) 
 			{
 				//console.log("check it: "+locationsArray[0].timeStamp);
@@ -48,7 +55,7 @@
 	    			});
 				} 	
 
-				var results = '<table class="table table-striped table-bordered table-condensed text-center" class ="fa" style="width: 1000px;">';
+				var results = '<table class="table text-center fa" style="width: 1000px;">';
 				results += '<th class = "text-center">Time Stamp</th>';
 				results += '<th class = "text-center">Latitude</th>';
 				results += '<th class = "text-center">Longitude</th>';
@@ -64,6 +71,7 @@
 	        	div.innerHTML = results;	
 			}
 			function initializeLocations(){
+			  cleanDates();
 		      var pathArray = window.location.href.split( '/' );
 		      var pathCreated = window.location.origin+"/getLocationsArrayForSession/"+pathArray[pathArray.length-1];
 		      console.log(pathCreated);
@@ -74,28 +82,42 @@
 		         loadMap(data);
 		      });
 			}
-			window.onload= initializeLocations;
+			
+			window.onload=initializeLocations;
+			
 		</script>
 		
 	</head>
 	<body>
-		<div class = "container">
-			<div class="col-sm-6 col-sm-offset-4">
+		<div class = "container-fluid">
+			<div class="row">
+			<div class="text-center">
 				<h1><span class="fa"></span> <%= session.session.email %>'s Session</h1>
+				<button type="button" class="btn btn-danger btn-xs">Call</button>
+				<button type="button" class="btn btn-primary btn-xs">E-mail</button>
 			</div>
-			<div id="map" style="width:1000px;height:300px;"></div>
+			</div>
+			<div class="row">
+				<div class="col-md-12">
+					<div id="map" style="width:100%;height:250px;margin-top:10px;margin-bottom:20px"></div>
+				</div>
+			</div>
+			<div class="row">
+			<div class="col-sm-6 col-sm-offset-2">
+			<div><span class="fa"></span>
+				<b>Start Date:</b> <span id="startDate"><%= session.session.startDate %></span>
+			</div>
+			<div><span class="fa"></span>
+				<b>End Date:</b> <span id="endDate"><%= session.session.endDate %></span>
+			</div>
+			<div><span class="fa" ></span>
+				<b>Guardian:</b> <%= session.session.guardianContact.email %>
+			</div>
 
-			<div><span class="fa"></span>
-				<b>Start Date: <%= session.session.startDate %></b>
-			</div>
-			<div><span class="fa"></span>
-				<b>End Date: <%= session.session.endDate %></b>
-			</div>
-			<div><span class="fa"></span>
-				<b>Guardian: <%= session.session.guardianContact.email %></b>
-			</div>
 
-			<div id="Table"></div>
+			<div id="Table" style="margin-top:20px"></div>
+			</div>
+			</div>
 		</div>
 
 <!-- 		<button onclick="loadMap(locationsArray)">Try it</button>
