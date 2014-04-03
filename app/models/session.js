@@ -16,15 +16,17 @@ var sessionSchema = mongoose.Schema({
         	latitude: Number,
         	longitude: Number
         },
-        locationsArray   : [{
+        locationArray   : [{
             timeStamp: Number,
         	latitude: Number,
         	longitude: Number
         }],
-        guardianContact    : {
-            phone : Number,
-            email : String
-        }
+        guardianContactArray  : [{
+            phone : String,
+            email : String,
+            status: String,
+            smsUpdates: Boolean
+        }]
     }
 })
 

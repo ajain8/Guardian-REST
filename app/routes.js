@@ -1,9 +1,12 @@
 // load up the apikey and user model
 var User       		= require('../app/models/user');
 var Session       		= require('../app/models/session');
+var twilio_helper = require('../config/twilio-helper');
+var twilio = require('twilio');
 var uuid = require('node-uuid');
 var express = require('express');
-var clients = {};
+
+
 // var _ = require("underscore");
 
 module.exports = function(app, passport, io) {
@@ -90,24 +93,44 @@ module.exports = function(app, passport, io) {
 	app.post('/api/createSession', isLoggedIn, function(req, res, next){
 			var email = req.user.local.email;
 			var newSession = new Session();
-			console.log(JSON.stringify(req.body.startDate));
+			console.log(JSON.stringify(req.body));
 			newSession.session.email = email;
 			newSession.session.startDate = req.body.startDate;
 			newSession.session.endDate = req.body.endDate;
 			newSession.session.finalLocation = req.body.finalLocation;
-			newSession.session.locationsArray = req.body.locationArray;
-			newSession.session.guardianContact = req.body.guardianContact;
+			newSession.session.locationArray = req.body.locationArray;
+			newSession.session.guardianContactArray = req.body.guardianContactArray;
 			newSession.save(function(err) {
 				if (!err) {
-				      return console.log("session created");
+					var guardianContactArray = newSession.session.guardianContactArray;
+				    console.log("session created");
+				    for (var i=0;i<guardianContactArray.length;i++) {
+				    	var guardian = guardianContactArray[i];
+				    	console.log("Value of guardian.smsUpdates: "+guardian);
+				    	 if(guardian.smsUpdates === true){
+				    	 	console.log("I reach here");
+				    	 	twilio_helper.sendGuardianRequest(guardian, email);
+				    	 }
+				    }
+					return res.send(newSession.session);
 				    } else {
 				      return console.log(err);
 				    }
 			});
-			return res.send(newSession.session);
 		}
 	 );
 
+	app.post('/api/messageRecieved', function(req,res){
+		console.log("Message recieved via Twilio");
+		var resp = new twilio.TwimlResponse();
+		resp.message('Thank you for replying, we will contact you soon!');
+		 //Render the TwiML document using "toString"
+    	// res.writeHead(200, {
+     // 	   'Content-Type':'text/xml'
+   		//  });
+	    res.type('text/xml');
+    	res.end(resp.toString());
+	});
 
 	// app.post('/api/createSession', userAuth, function(req, res){
 	// 	var email = requestEmail(req);
