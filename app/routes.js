@@ -109,21 +109,20 @@ module.exports = function(app, passport, io) {
 				    for (var i=0;i<guardianContactArray.length;i++) {
 				    	var guardian = guardianContactArray[i];
 				    	pendingSessionQueue.push[guardian.phone] = newSession._id; //ching code
-						});
-				    	console.log("Value of guardian.smsUpdates: "+guardian);
-				    	 if(guardian.smsUpdates === true){
-				    	 	console.log("I reach here");
-				    	 	twilio_helper.sendGuardianRequest(guardian, email);
-				    	 }
-				    }
-				    
+					}
+				    console.log("Value of guardian.smsUpdates: "+guardian);
+				    if(guardian.smsUpdates === true){
+				    	console.log("I reach here");
+				     	twilio_helper.sendGuardianRequest(guardian, email);
+				    }				    
 					return res.send(newSession.session);
-				    } else {
-				      return console.log(err);
-				    }
+				} 
+			    else {
+			    	return console.log(err);
+			    }
 			});
-		}
-	 );
+
+		});
 
 
 	app.post('/api/messageRecieved', function(req,res){
@@ -135,7 +134,7 @@ module.exports = function(app, passport, io) {
 			
 			if( req.from in pendingSessionQueue ){
 				var targetSession = pendingSessionQueue[req.from];
-				if((req.body).match(/yes/gi))
+				if((req.body).match(/yes/gi) && (req.body).length == 3)
 				{
 					resp.message('Thank you for replying, we will contact you soon!');
 					Session.findById(targetSession, function (err, session) {
@@ -150,11 +149,11 @@ module.exports = function(app, passport, io) {
 								break;
 							}
 						}
-					}
+					});
 					delete pendingSessionQueue[req.from];
 
 				}
-				else if((req.body).match(/no/gi))
+				else if((req.body).match(/no/gi) && (req.body).length == 2)
 				{
 					resp.message('Thank you for replying, we will contact you soon!');
 					Session.findById(targetSession, function (err, session) {
@@ -169,7 +168,7 @@ module.exports = function(app, passport, io) {
 								break;
 							}
 						}
-					}
+					});
 					delete pendingSessionQueue[req.from];
 				}
 				else
