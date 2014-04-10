@@ -6,42 +6,62 @@
 	<link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.0.2/css/bootstrap.min.css"> <!-- load bootstrap css -->
 	<link rel="stylesheet" href="//netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.min.css"> <!-- load fontawesome -->
 	<style>
-		body 		{ padding-top:80px; }
+		body{background: #3399CC;};
 	</style>
 </head>
 <body>
-<div class="container">
+	<!-- Navbar
+	======================================================= -->
+	<div class="navbar navbar-inverse navbar-fixed-top">
+      	<div class="container">
+         	<div class="navbar-header" style="float: left; margin-right: 10px">
+            	<a id="gTab" class="navbar-brand active" href="http://localhost:3000">Guardian</a>
+         	</div>
+         	<div class = "command-bar active fa"  style="margin-top:15px; float: left;" >
+				<form accept-charset="UTF-8" action="/search" class="command-bar-form fa" id="top_search_form" method="get" >
+					<input type="text" data-hotkey="/ s" name="q" id="js-command-bar-field" placeholder="Search Session" tabindex="1" autocapitalize="off">
+				</form>
+			</div>
+			<div class= "header-actions">
+				<a href="/signup" class="btn btn-default" style=" margin-top: 8px ;float:right;"><span class="active"></span> Sign Up </a>
+				<a href="/login" class="btn btn-primary" style=" margin-top: 8px ;float:right; margin-right: 8px"><span class="active"></span> Login </a>
+				
+			</div >
+      	</div>
+   	</div> 
+	<!-- /Navbar ========================================= -->
+	<div id="myCarousel"data-ride="carousel" style =" padding-top: 55px; background: #3399CC; padding-bottom: 10px">
+          <div class="container row">
+            <!-- SIGNUP FORM -->
+            <div class="col-lg-6 text-center">
+            	<div>
+	              <h1>Welcome Back!</h1>
+	              <!-- <p>Take A Step Towards A Safer Night Out!</p> -->
+	            </div>
+            </div>
+            <div class="col-lg-6 text-center" >
+				<% if (message.length > 0) { %>
+					<div class="alert alert-danger"><%= message %></div>
+				<% } %>
 
-<div class="col-sm-6 col-sm-offset-3">
+				<!-- LOGIN FORM -->
+				<form action="/login" method="post">
+					<div class="form-group">
+						<label>Email</label>
+						<input type="text" class="form-control" name="email">
+					</div>
+					<div class="form-group">
+						<label>Password</label>
+						<input type="password" class="form-control" name="password">
+					</div>
+					<button type="submit" class="btn btn-lg btn-warning btn-block">Login</button>
 
-	<h1><span class="fa fa-sign-in"></span> Login</h1>
 
-	<!-- show any messages that come back with authentication -->
-	<% if (message.length > 0) { %>
-		<div class="alert alert-danger"><%= message %></div>
-	<% } %>
+				</form>
+			</div>
 
-	<!-- LOGIN FORM -->
-	<form action="/login" method="post">
-		<div class="form-group">
-			<label>Email</label>
-			<input type="text" class="form-control" name="email">
-		</div>
-		<div class="form-group">
-			<label>Password</label>
-			<input type="password" class="form-control" name="password">
-		</div>
+          </div>
+    </div><!-- /.carousel -->
 
-		<button type="submit" class="btn btn-warning btn-lg">Login</button>
-	</form>
-
-	<hr>
-
-	<p>Need an account? <a href="/signup">Signup</a></p>
-	<p>Or go <a href="/">home</a>.</p>
-
-</div>
-
-</div>
 </body>
 </html>

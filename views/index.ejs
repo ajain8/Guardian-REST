@@ -6,21 +6,145 @@
 	<link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.0.2/css/bootstrap.min.css"> <!-- load bootstrap css -->
 	<link rel="stylesheet" href="//netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.min.css"> <!-- load fontawesome -->
 	<style>
-		body { padding-top:80px; }
+		body { background: #009933;}
 	</style>
+	<script type="text/javascript">
+		   function showDialog() {
+		        document.getElementById('dialog');
+		    }
+	</script>
 </head>
-<body>
-<div class="container">
+<body class = "homepage">
+	<!-- Navbar
+	======================================================= -->
+	<div class="navbar navbar-inverse navbar-fixed-top">
+      	<div class="container">
+         	<div class="navbar-header" style="float: left; margin-right: 10px">
+         		
+            	<a id="gTab" class="navbar-brand active" href="http://localhost:3000" >Guardian</a>
+         	</div>
+         	<div class = "command-bar active fa"  style="margin-top:15px; float: left;" >
+				<form accept-charset="UTF-8" action="/getSession" class="command-bar-form fa" id="top_search_form" method="get" >
+					<input type="text" data-hotkey="/ s" name="q" id="js-command-bar-field" placeholder="Search Session" tabindex="1" autocapitalize="off">
+				</form>
+			</div>
+			<div class= "header-actions">
+				<a href="/signup" class="btn btn-default" style=" margin-top: 8px ;float:right;"><span class="active"></span> Sign Up </a>
+				<a href="/login" class="btn btn-primary" style=" margin-top: 8px ;float:right; margin-right: 8px"><span class="active"></span> Login </a>
+				<!-- <button id="Button2" onclick="showDialog();">Login</button> -->
+				<!-- <a  id="myModalLabel" data-toggle="modal" data-target="#myModal" class="btn btn-primary" style=" margin-top: 8px ;float:right; margin-right: 8px" role="button"><span class="active"></span> Login </a> -->
+				<!-- <a class="btn btn-lg btn-primary text-center new-account" href="#" data-toggle="modal" data-target="#myModal" role="button">Click to register!</a> -->
+				
+				
+				
+			</div >
+      	</div>
+   	</div> 
+	<!-- /Navbar ========================================= -->
 
-	<div class="jumbotron text-center">
-		<h1> Guardian </h1>
+	<!-- Carousel
+    ================================================== -->
+    <div id="myCarousel"data-ride="carousel" style ="padding-top: 55px; background: #3399CC; padding-bottom: 5px">
+          <div class="container row">
+            <!-- SIGNUP FORM -->
+            <div class="col-lg-6 text-center">
+            	<div>
+            	  <img class="img-circle" src="Logo.png" alt="Generic placeholder image" style="width: 180px; height: 180px">
+	              <h1>Welcome To Guardian</h1>
+	              <p>Your New Protection Software</p>
 
-		<!-- <p>Login or Register with:</p> -->
+	            </div>
+            </div>
+            <div class="col-lg-6 text-center" >
+				<form action="/signup" method="post" >
+					<div class="form-group">
+						<label>UserName</label>
+						<input type="text" class="form-control" name="userName">
+					</div>
+					<div class="form-group">
+						<label>Email</label>
+						<input type="text" class="form-control" name="email">
+					</div>
+					<div class="form-group">
+						<label>Password</label>
+						<input type="password" class="form-control" name="password">
+					</div>
 
-		<a href="/login" class="btn btn-default"><span class="fa fa-user"></span> Login </a>
-		<a href="/signup" class="btn btn-default"><span class="fa fa-user"></span> Sign Up </a>
-	</div>
+					<button type="submit" class="btn btn-lg btn-success btn-block">Sign Up</button>
+				</form>
+			</div>
 
-</div>
+          </div>
+    </div><!-- /.carousel -->
+
+    <!-- Carouse2
+    ================================================== -->
+    <div id="myCarouse2" class="carouse2" data-ride="carouse2" style =" background: silver">  
+      <div class="carousel-inner">
+      	<div class="text-center">
+            	<div class ="fa text-center"  >
+	              <h1>Why Guardian?</h1>
+	            </div>
+            </div>
+        <div class="item active">
+        	
+          <div class="container">
+            <div class="row">
+	        <div class="col-lg-4 text-center">
+	        	<img class="img-circle" src="bino.png" alt="Generic placeholder image" style="width: 100px; height: 100px">
+	          <h2>Keep your friends safe</h2>
+	          <p>Make sure your friends are safe when they go out</p>
+	        </div><!-- /.col-lg-4 -->
+	        <div class="col-lg-4 text-center">
+	        	<img class="img-circle" src="bino2.png" alt="Generic placeholder image" style="width: 100px; height: 100px">
+	          <h2>Your friends keep you safe</h2>
+	          <p>Make sure you get back home safe when you go out</p>
+	        </div><!-- /.col-lg-4 -->
+	        <div class="col-lg-4 text-center">
+	          <img class="img-circle" src="Panic.png" alt="Generic placeholder image" style="width: 100px; height: 100px">
+	          <h2>Panic!</h2>
+	          <p>When something bad happens, your friends will know</p>
+	        </div><!-- /.col-lg-4 -->
+	      </div><!-- /.row -->
+          </div>
+        </div>
+      </div>
+    </div><!-- /.carousel -->
+
+    <!-- Carouse2
+    ================================================== -->
+    <div id="myCarouse3" class="carouse3" data-ride="carouse3" style =" background: #009933">  
+      <div class="carousel-inner">
+        <div class="item active">
+        	<div class="text-center">
+            	<div class ="fa text-center"  >
+	              <h1>Features</h1>
+	            </div>
+            </div>
+          <div class="container">
+            <div class="row">
+	        <div class="col-lg-4 text-center">
+	          <img class="img-circle" src="Setting.png" alt="Generic placeholder image" style="width: 100px; height: 100px">
+	          <h2>Easy set up</h2>
+	          <p>Sign up and your application is ready.</p>
+	        </div><!-- /.col-lg-4 -->
+	        <div class="col-lg-4 text-center">
+	          <img class="img-circle" src="Battery.png" alt="Generic placeholder image" style="width: 150px; height: 100px">
+	          <img class="img-circle" src="Data.png" alt="Generic placeholder image" style="width: 100px; height: 100px">
+	          <h2>Battery Efficient</h2>
+	          <p>Battery levels will not be drained unreasonably</p>
+	        </div><!-- /.col-lg-4 -->
+	        <div class="col-lg-4 text-center">
+	          <img class="img-circle" src="pie.png" alt="Generic placeholder image" style="width: 100px; height: 100px">
+	          <h2>Easy to use</h2>
+	          <p>Setting a session is easy as pie</p>
+	        </div><!-- /.col-lg-4 -->
+	      </div><!-- /.row -->
+          </div>
+        </div>
+      </div>
+    </div><!-- /.carouse3 -->
+
+    
 </body>
 </html>
