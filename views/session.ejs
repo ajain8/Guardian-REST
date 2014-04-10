@@ -1,9 +1,10 @@
+<!DOCTYPE html>
 <html>
 	<head> 
 		<title> Session Log </title>
 		<link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.0.2/css/bootstrap.min.css"> <!-- load bootstrap css -->
 		<link rel="stylesheet" href="//netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.min.css"> <!-- load fontawesome -->
-		<script type="text/javascript" src="http://maps.google.com/maps/api/js?sensor=true"></script>
+		<script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?key=AIzaSyD0u-SXBYuLVB_cSNAb_rBuH7uhAVf1fdA&sensor=false&location_type=RANGE_INTERPOLATED"></script>
 		<script type="text/javascript" src='/javascripts/socket.io.min.js'></script>    
 		<script type="text/javascript" src='/javascripts/jquery-1.9.1.min.js'></script>    
 		<script type="text/javascript" src='/javascripts/index.js'></script>    
@@ -11,16 +12,24 @@
 
 
 		<script type="text/javascript">
-		     function cleanDates()
-		     {	         	
-		     	var startDate = document.getElementById("startDate");
-		     	startDate.innerHTML=moment(startDate.innerHTML).format("dddd, MMMM Do YYYY");
+			 function setup()
+			 {
+			 	// var guardianContactArray =  session.session.guardianContactArray;
+			 	// console.log(guardianContactArray);
+			 	//  for (var guardianContact in guardianContactArray){
+			 	//  	guardianArray.innerHTML += guardianContact.phone;
+			 	// }
+			 	var startDate = document.getElementById("startDate");
+		     	startDate.innerHTML=moment(<%= session.session.startDate %>).format("dddd, MMMM Do, h:mm a");
 		     	var endDate = document.getElementById("endDate");
-		     	endDate.innerHTML=moment(endDate.innerHTML).format("dddd, MMMM Do YYYY");
-		     }
+		     	endDate.innerHTML=moment(<%= session.session.endDate %>).format("dddd, MMMM Do, h:mm a");
+
+			 }
 			function loadMap(locationsArray) 
 			{
 				//console.log("check it: "+locationsArray[0].timeStamp);
+				var geocoder = new google.maps.Geocoder();
+
 				var centerLong;
 				var centerLat
 				if(locationsArray.length)
@@ -35,7 +44,6 @@
 				}
 
 				var myOptions = {
-
 				  center: new google.maps.LatLng(centerLat, centerLong),
 				  zoom: 13,
 				  mapTypeId: google.maps.MapTypeId.ROADMAP
@@ -51,34 +59,81 @@
 					marker = new google.maps.Marker({
 					position: new google.maps.LatLng(locationsArray[i].latitude, locationsArray[i].longitude), // Example Lat/Long
 					map: map, // references the map object you defined earlier
-					title: locationsArray[i].timeStamp.toString() // a title that will appear on hover
+					title: moment(locationsArray[i].timeStamp).format("dddd, h:mm a") // a title that will appear on hover
 	    			});
 				} 	
 
-				var results = '<table class="table text-center fa" style="width: 1000px;">';
-				results += '<th class = "text-center">Time Stamp</th>';
-				results += '<th class = "text-center">Latitude</th>';
-				results += '<th class = "text-center">Longitude</th>';
-	            for (var i=0; i<locationsArray.length; i++) { //###NOTICE THE CHANGE FROM i++ TO     i=i+2               
-	                results += "<tr><td>" + locationsArray[i].timeStamp + "</td>";  
-	                results += "<td>" + locationsArray[i].latitude + "</td>";
-	                results += "<td>" + locationsArray[i].longitude + "</td>";
-	                results += "</tr>";   
-	                }
-	            
-	            results += "</table>";
+				var tableHTML = '<table class="table text-center" style="width:1000px">';
+				tableHTML += '<th class="text-center">TIME</th>';
+				tableHTML += '<th class="text-center">ADDRESS</th>';
+
+				document.addEventListener("address_found", function(e) {
+  					console.log(e.detail); // Prints "Example of an event"
+  		  // tableHTML += "<tr><td>" + locationsArray[i].timeStamp + "</td>";  
+	      //           tableHTML += "<tr><td>" + results[1].formatted_address + "</td>";
+	      //           tableHTML += "<td>" + locationsArray[i].longitude + "</td>";
+	      //           tableHTML += "</tr>";  
+
+				});
+
+
+				// results += '<th class = "text-center">Longitude</th>';
+
+	            for (var i=0; i<locationsArray.length; i++) {   
+	            	var location = locationsArray[i];
+	            	var latlng = new google.maps.LatLng(location.latitude, location.longitude);
+	            	(function(i){ //start wrapper code
+	            	geocoder.geocode({'latLng': latlng}, function(results, status){
+	            		// console.log(i);
+	            		// console.log(results);
+	            		if (status == google.maps.GeocoderStatus.OK) {
+						      if (results[3]) {
+						      	var addressHTML = document.getElementById("addr_"+i);
+						      	addressHTML.innerHTML = results[3].formatted_address;
+						      } else {
+				          		//alert('No results found');
+						      }
+						} else {
+						      //alert('Geocoder failed due to: ' + status);
+						}
+	            	});
+	            	})(i);
+	       			tableHTML += "<tr><td>" + moment(locationsArray[i].timeStamp).format("dddd, h:mm a") + "</td>";  
+	                tableHTML += "<td id=\"addr_"+i+"\">(" + locationsArray[i].latitude + " / "+ locationsArray[i].longitude + ")</td>";
+	                tableHTML += "</tr>";  
+	            }
+	            // function callback(i, results, status){
+	            // 	console.log(i);
+	            // }
+		   //      function callback (i, results, status){
+		   //          function(results, status) {
+					// 	    if (status == google.maps.GeocoderStatus.OK) {
+					// 	      if (results[1]) {
+					// 	      	var addressHTML = document.getElementById("addr_"+i);
+					// 	      	addressHTML.innerHTML = results[1].formatted_address;
+					// 	      } else {
+				 //          		alert('No results found');
+					// 	      }
+					// 	    } else {
+					// 	      alert('Geocoder failed due to: ' + status);
+					// 	    }
+					// }
+					// console.log(i);
+					// function(results, status){
+					// 	console.log(i);
+					// }
+		   //      }
+
+	            tableHTML += "</table>";
 	         	var div = document.getElementById("Table");
-	        	div.innerHTML = results;	
+	        	div.innerHTML = tableHTML;	
 			}
+
 			function initializeLocations(){
-			  cleanDates();
+			  setup();
 		      var pathArray = window.location.href.split( '/' );
 		      var pathCreated = window.location.origin+"/getLocationsArrayForSession/"+pathArray[pathArray.length-1];
-		      console.log(pathCreated);
-		      // console.log(window.location.origin+"/getLocationsArrayForSession/"+pathArray[pathArray.length-1]);
 		       $.get(pathCreated,function(data,status){
-		         //alert("Data: " + data + "\nStatus: " + status);
-		         //console.log(data[0].latitude);
 		         loadMap(data);
 		      });
 			}
@@ -105,15 +160,15 @@
 			<div class="row">
 			<div class="col-sm-6 col-sm-offset-2">
 			<div><span class="fa"></span>
-				<b>Start Date:</b> <span id="startDate"><%= session.session.startDate %></span>
+				<b>START | </b> <span id="startDate">Date</span>
 			</div>
 			<div><span class="fa"></span>
-				<b>End Date:</b> <span id="endDate"><%= session.session.endDate %></span>
+				<b>END |  </b> <span id="endDate">Date</span>
 			</div>
-			<div><span class="fa" ></span>
-				<b>Guardian:</b> <%= session.session.guardianContact.email %>
+<!-- 			<div><span class="fa" ></span>
+				<b>Guardians:</b> <span id="guardianArray"><%= guardianContactArray = session.session.guardianContactArray %><span>
 			</div>
-
+ -->
 
 			<div id="Table" style="margin-top:20px"></div>
 			</div>

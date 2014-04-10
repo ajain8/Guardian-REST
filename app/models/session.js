@@ -10,8 +10,8 @@ var sessionSchema = mongoose.Schema({
 	session              : {
         email          	 : String,
         pin     	     : String,
-        startDate	 	 : Date,
-        endDate		 	 : Date,
+        startDate	 	 : Number,
+        endDate		 	 : Number,
         finalLocation    : {
         	latitude: Number,
         	longitude: Number

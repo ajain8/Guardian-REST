@@ -2,10 +2,11 @@
 var User       		= require('../app/models/user');
 var Session       		= require('../app/models/session');
 var twilio_helper = require('../config/twilio-helper');
-var twilio = require('twilio');
 var uuid = require('node-uuid');
 var express = require('express');
-
+var clients = {};
+var pendingSessionQueue = [];
+var twilio = require('twilio');
 
 // var _ = require("underscore");
 
@@ -106,13 +107,16 @@ module.exports = function(app, passport, io) {
 				    console.log("session created");
 				    for (var i=0;i<guardianContactArray.length;i++) {
 				    	var guardian = guardianContactArray[i];
+				    	//pendingSessionQueue.push[guardian.phone] = newSession._id; //ching code
 				    	console.log("Value of guardian.smsUpdates: "+guardian);
 				    	 if(guardian.smsUpdates === true){
 				    	 	console.log("I reach here");
 				    	 	twilio_helper.sendGuardianRequest(guardian, email);
 				    	 }
 				    }
-					return res.send(newSession.session);
+				    console.log("BOOYEAH: "+newSession._id);
+				    console.log("Session shit: "+newSession);
+					return res.send(newSession);
 				    } else {
 				      return console.log(err);
 				    }
@@ -120,15 +124,85 @@ module.exports = function(app, passport, io) {
 		}
 	 );
 
-	app.post('/api/messageRecieved', function(req,res){
+	// app.post('/api/messageRecieved', function(req,res){
+	// 	//console.log(req);
+	// 	// if (twilio.validateExpressRequest(req, '833aaa052df7531546d020157ddc52fb')) {
+	//         console.log("Message recieved via Twilio");
+	// 		var resp = new twilio.TwimlResponse();
+
+			
+			
+	// 		if( req.body.from in pendingSessionQueue ){
+	// 			var targetSession = pendingSessionQueue[req.from];
+	// 			if((req.body.Body).match(/yes/gi) && (req.body.Body).length == 3)
+	// 			{
+	// 				resp.message('Thank you for replying, we will contact you soon!');
+	// 				Session.findById(targetSession, function (err, session) {
+	// 					if(session === null){
+	// 						return res.send(404);
+	// 					}
+	// 					else if (!err && session != null) {
+	// 						for(var guardian in session.guardianContactArray)
+	// 						{
+	// 							if(guardian.phone === req.body.from)
+	// 								guardian.status = "active";
+	// 							break;
+	// 						}
+	// 					}
+	// 				});
+	// 				delete pendingSessionQueue[req.body.from];
+
+	// 			}
+	// 			else if((req.body.Body).match(/no/gi) && (req.body.Body).length == 2)
+	// 			{
+	// 				resp.message('Thank you for replying, we will contact you soon!');
+	// 				Session.findById(targetSession, function (err, session) {
+	// 					if(session === null){
+	// 						return res.send(404);
+	// 					}
+	// 					else if (!err && session != null) {
+	// 						for(var guardian in session.guardianContactArray)
+	// 						{
+	// 							if(guardian.phone === req.body.from)
+	// 								guardian.status = "inactive";
+	// 							break;
+	// 						}
+	// 					}
+	// 				});
+	// 				delete pendingSessionQueue[req.body.from];
+	// 			}
+	// 			else
+	// 			{
+	// 				resp.message('Incorrect Response.');
+	// 			}
+
+
+				
+	// 			 //Render the TwiML document using "toString"
+	// 	    	// res.writeHead(200, {
+	// 	     // 	   'Content-Type':'text/xml'
+	// 	   		//  });
+	// 			console.log(resp.toString());
+	// 		    res.type('text/xml');
+	// 	    	res.send(resp.toString());
+	//     	}
+	//     // }
+	//     // else {
+	//     //     res.send('you are not twilio.  Buzz off.');
+	//     // }
+		
+	// });
+
+	app.post('/api/messageRecieved', function(req, res){
 		console.log("Message recieved via Twilio");
 		var resp = new twilio.TwimlResponse();
-		resp.message('Thank you for replying, we will contact you soon!');
+
+		//resp.say('express sez - hello twilio!');
+		resp.message('Thank you for your response!');
 		 //Render the TwiML document using "toString"
-    	// res.writeHead(200, {
-     // 	   'Content-Type':'text/xml'
-   		//  });
+    	//res.writeHead(200, {'Content-Type':'text/xml'});
 	    res.type('text/xml');
+	    console.log(resp.toString());
     	res.end(resp.toString());
 	});
 
@@ -184,7 +258,7 @@ module.exports = function(app, passport, io) {
 		Session.findById(req.params.id, function (err, session) {
 			if (!err) {
 				console.log(session.session.locationsArray);
-				return res.json(session.session.locationsArray);
+				return res.json(session.session.locationArray);
 			} else {
 				return res.send(404);
 			}
@@ -199,10 +273,10 @@ module.exports = function(app, passport, io) {
 			if(session === null){
 				return res.send(404);
 			}
-			else if(!err && session.session.email === email){
+			else if(!err && session.session.email === email && typeof req.body.location != 'undefined'){
 				//console.log("Headers: ", req.headers);
 				var newLocation = req.body.location;
-				session.session.locationsArray.push(newLocation);
+				session.session.locationArray.push(newLocation);
 				//console.log("Session ID: "+session._id);
 				//console.log("socket id: "+socket.id);
 				//var socket = clients[session._id];
