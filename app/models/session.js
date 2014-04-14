@@ -8,6 +8,7 @@ var bcrypt   = require('bcrypt-nodejs');
 var sessionSchema = mongoose.Schema({
 
 	session              : {
+        name             : String,
         email          	 : String,
         pin     	     : String,
         startDate	 	 : Number,
@@ -22,6 +23,7 @@ var sessionSchema = mongoose.Schema({
         	longitude: Number
         }],
         guardianContactArray  : [{
+            name  : String,
             phone : String,
             email : String,
             status: String,

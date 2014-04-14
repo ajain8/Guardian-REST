@@ -3,48 +3,55 @@
 <html>
 <head>
 	<title> Guardian </title>
-	<link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.0.2/css/bootstrap.min.css">
-	<link rel="stylesheet" href="//netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.min.css">
-	<style>
-		body 		{background: #3399CC;  }
-	</style>
+	<link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.0.2/css/bootstrap.min.css"> <!-- load bootstrap css -->
+	<link rel="stylesheet" href="//netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.min.css"> <!-- load fontawesome -->
+ 	<link rel="stylesheet" href="stylesheets/index.css"> 
 </head>
 <body>
-	<!-- Navbar
-	======================================================= -->
-	<div class="navbar navbar-inverse navbar-fixed-top">
-      	<div class="container">
-         	<div class="navbar-header" style="float: left; margin-right: 10px">
-            	<a id="gTab" class="navbar-brand active" href="http://localhost:3000">Guardian</a>
-         	</div>
-         	<div class = "command-bar active fa"  style="margin-top:15px; float: left;" >
-				<form accept-charset="UTF-8" action="/search" class="command-bar-form fa" id="top_search_form" method="get" >
-					<input type="text" data-hotkey="/ s" name="q" id="js-command-bar-field" placeholder="Search Session" tabindex="1" autocapitalize="off">
-				</form>
+<nav class="navbar navbar-default navbar-fixed-top" role="navigation" style="background: #FFFFFF;">
+  <div class="container-fluid">
+    <!-- Brand and toggle get grouped for better mobile display -->
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+<!--        <a class="navbar-brand" href="#">Guardian</a>    
+ -->	<a class="brand" href="/">            	  
+		<img class="img-circle" src="images/Logo.png" alt="Generic placeholder image" style="width: 37px; height: 37px; margin-left:15px; margin-top:5px;">
+	</a>    
+
+	</div>
+
+    <!-- Collect the nav links, forms, and other content for toggling -->
+    <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+ 	  <form class="navbar-form navbar-left" role="search" action="/getSession" method="get">
+        <div class="form-group">
+          <input type="text" class="form-control" placeholder="Session ID" name="id">
+        </div>
+        <button type="submit" class="btn btn-primary">Find</button>
+      </form>
+      <form class="navbar-form navbar-right" role="form" action="/logout" method="get">
+        <button type="submit" class="btn btn-primary">Logout</button>
+      </form>
+    </div><!-- /.navbar-collapse -->
+  </div><!-- /.container-fluid -->
+</nav>
+
+<div class="containter-fluid">
+<div class="row">
+			<div class="col-md-4 col-md-offset-4 text-center" style="margin-top:20px">
+		  		<h1>Welcome back <%= user.local.name %>!</h1>
 			</div>
-			<div class= "header-actions">
-				<a href="/signup" class="btn btn-default" style=" margin-top: 8px ;float:right;"><span class="active"></span> Sign Up </a>
-				<a href="/login" class="btn btn-primary" style=" margin-top: 8px ;float:right; margin-right: 8px"><span class="active"></span> Login </a>
-				
-			</div >
-      	</div>
-   	</div> 
 
-		
-	<!-- Carousel
-    ================================================== -->
-    <div id="myCarousel"data-ride="carousel" style ="padding-top: 55px; background: #3399CC; padding-bottom: 10px">
-          <div class="container row">
-            <!-- SIGNUP FORM -->
-            <div class=" text-center">
-            	<p>
-						<strong> username </strong>: username<br>
-						<strong> id </strong>: <%= user._id %><br>
-						<strong> email </strong>: <%= user.local.email %><br>
-						<!-- <strong> password </strong>: <%= user.local.password %> -->
-					</p>
-            </div>
+</div>
+</div>
 
-          </div>
-    </div><!-- /.carousel -->
+
+
+
+
 </body>
+</html>

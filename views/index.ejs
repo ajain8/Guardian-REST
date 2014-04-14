@@ -3,148 +3,156 @@
 <html>
 <head>
 	<title> Guardian </title>
+	<style type="text/css">
+	label.error { float: none; color: red; padding-left: .5em; vertical-align: top; }
+	</style>
+
 	<link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.0.2/css/bootstrap.min.css"> <!-- load bootstrap css -->
 	<link rel="stylesheet" href="//netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.min.css"> <!-- load fontawesome -->
-	<style>
-		body { background: #009933;}
-	</style>
-	<script type="text/javascript">
-		   function showDialog() {
-		        document.getElementById('dialog');
-		    }
+	<link rel="stylesheet" href="stylesheets/index.css"> 
+	<!-- Latest compiled and minified JavaScript -->
+	<script src="http://code.jquery.com/jquery-1.9.1.js"></script>
+	<script src="//netdna.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min.js"></script>
+	<script type="text/javascript" src="http://ajax.aspnetcdn.com/ajax/jquery.validate/1.12.0/jquery.validate.js"></script>
+
+	<script>
+		// (function ($) {
+		// $(document);
+		// }(jQuery));
+		$(".alert").alert();
 	</script>
 </head>
-<body class = "homepage">
-	<!-- Navbar
-	======================================================= -->
-	<div class="navbar navbar-inverse navbar-fixed-top">
-      	<div class="container">
-         	<div class="navbar-header" style="float: left; margin-right: 10px">
-         		
-            	<a id="gTab" class="navbar-brand active" href="http://localhost:3000" >Guardian</a>
-         	</div>
-         	<div class = "command-bar active fa"  style="margin-top:15px; float: left;" >
-				<form accept-charset="UTF-8" action="/getSession" class="command-bar-form fa" id="top_search_form" method="get" >
-					<input type="text" data-hotkey="/ s" name="q" id="js-command-bar-field" placeholder="Search Session" tabindex="1" autocapitalize="off">
-				</form>
+<body>
+
+<% if (message1.length > 0) { %>
+		<div class="alert alert-danger text-center fade in" style="margin-bottom:0px;"><%= message1 %>
+			<button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+		</div>
+<% } %>
+<% if (message2.length > 0) { %>
+		<div class="alert alert-danger text-center fade in" style="margin-bottom:0px;"><%= message2 %>
+			<button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+		</div>
+<% } %>
+<nav class="navbar navbar-default navbar-fixed-top" role="navigation" style="background: #FFFFFF;">
+  <div class="container-fluid">
+    <!-- Brand and toggle get grouped for better mobile display -->
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+<!--        <a class="navbar-brand" href="#">Guardian</a>    
+ -->	<a class="brand" href="#">            	  
+		<img class="img-circle" src="images/Logo.png" alt="Generic placeholder image" style="width: 37px; height: 37px; margin-left:15px; margin-top:5px;">
+	</a>    
+
+	</div>
+
+    <!-- Collect the nav links, forms, and other content for toggling -->
+    <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+ 	  <form class="navbar-form navbar-left" role="form" action="/getSession" method="get">
+        <div class="form-group">
+          <input type="text" class="form-control" placeholder="Session ID" name="id">
+        </div>
+        <button type="submit" class="btn btn-primary">Find</button>
+      </form>
+
+ 	  <form class="navbar-form navbar-right" action="/login" method="post" role="form">
+        <div class="form-group">
+          <input type="text" class="form-control" placeholder="Email" name="email">
+        </div>
+        <div class="form-group">
+          <input type="password" class="form-control" placeholder="Password" name="password">
+        </div>
+        <button type="submit" class="btn btn-primary">Login</button>
+      </form>
+    </div><!-- /.navbar-collapse -->
+  </div><!-- /.container-fluid -->
+</nav>
+
+<div class="jumbotron" style="margin-bottom:0px;">
+	<div class="container-fluid">
+		<div class="row">
+		</div>
+	   <div class="row">
+		  	<div class="col-md-4 col-md-offset-2 text-left" style="margin-top:20px">
+		  		<h1>Guardian</h1>
+		  		<h3>An advanced and efficent GPS tracker for a safer night out</h3>
 			</div>
-			<div class= "header-actions">
-				<a href="/signup" class="btn btn-default" style=" margin-top: 8px ;float:right;"><span class="active"></span> Sign Up </a>
-				<a href="/login" class="btn btn-primary" style=" margin-top: 8px ;float:right; margin-right: 8px"><span class="active"></span> Login </a>
-				<!-- <button id="Button2" onclick="showDialog();">Login</button> -->
-				<!-- <a  id="myModalLabel" data-toggle="modal" data-target="#myModal" class="btn btn-primary" style=" margin-top: 8px ;float:right; margin-right: 8px" role="button"><span class="active"></span> Login </a> -->
-				<!-- <a class="btn btn-lg btn-primary text-center new-account" href="#" data-toggle="modal" data-target="#myModal" role="button">Click to register!</a> -->
-				
-				
-				
-			</div >
-      	</div>
-   	</div> 
-	<!-- /Navbar ========================================= -->
-
-	<!-- Carousel
-    ================================================== -->
-    <div id="myCarousel"data-ride="carousel" style ="padding-top: 55px; background: #3399CC; padding-bottom: 5px">
-          <div class="container row">
-            <!-- SIGNUP FORM -->
-            <div class="col-lg-6 text-center">
-            	<div>
-            	  <img class="img-circle" src="Logo.png" alt="Generic placeholder image" style="width: 180px; height: 180px">
-	              <h1>Welcome To Guardian</h1>
-	              <p>Your New Protection Software</p>
-
-	            </div>
-            </div>
-            <div class="col-lg-6 text-center" >
-				<form action="/signup" method="post" >
+		  	<div class="col-md-3 col-md-offset-1">
+				<form action="/signup" method="post" id="signup">
 					<div class="form-group">
-						<label>UserName</label>
-						<input type="text" class="form-control" name="userName">
+						<input type="text" name="field2" class="form-control" placeholder="Enter your name" name="username" style="padding: 25px 19px;font-size: 19px;">
 					</div>
 					<div class="form-group">
-						<label>Email</label>
-						<input type="text" class="form-control" name="email">
+						<input type="text" name="field1" class="form-control" placeholder="Your email" name="email" style="padding: 25px 19px;font-size: 19px;">
 					</div>
 					<div class="form-group">
-						<label>Password</label>
-						<input type="password" class="form-control" name="password">
+						<input type="password" class="form-control" placeholder="Create a password" name="password" style="padding: 0px 19px 0px 19px; font-size: 19px;height: 50px;">
 					</div>
-
 					<button type="submit" class="btn btn-lg btn-success btn-block">Sign Up</button>
 				</form>
-			</div>
+		  	</div>
+		</div>
+	</div>
+</div>
 
-          </div>
-    </div><!-- /.carousel -->
+<div class="jumbotron" style="background: #FFFFFF;margin-bottom:0px;">
+	<div class="container-fluid">
+	   <div class="row" style="margin-bottom:30px;">
+	   	<div class="text-center"><h2>Why Guardian? </h2></div>
+	   </div>
+	   <div class="row">
+		   	<div class="col-md-4 text-center">
+		   	<img class="img" src="images/user.png" alt="image" style="width: 100px; height: 100px">
+	          <h3>Keep your friends safe</h3>
+	          <p>Make sure your friends are safe </br> when they go out</p>
+		  	</div>
+		  	<div class="col-md-4 text-center">
+				<img class="img" src="images/friends.png" alt="image" style="width: 100px; height: 100px">
+				<h3>Your friends keep you safe</h3>
+				<p>Make sure you get back home safe </br>when you go out</p>
+		  	</div>
+		  	<div class="col-md-4 text-center">
+		  		<img class="img" src="images/warning.png" alt="image" style="width: 100px; height: 100px">
+	          	<h3>Panic!</h3>
+	         	<p>When something bad happens, </br>your friends will know</p>
+		  	</div>
+		</div>
+	</div>
+</div>
 
-    <!-- Carouse2
-    ================================================== -->
-    <div id="myCarouse2" class="carouse2" data-ride="carouse2" style =" background: silver">  
-      <div class="carousel-inner">
-      	<div class="text-center">
-            	<div class ="fa text-center"  >
-	              <h1>Why Guardian?</h1>
-	            </div>
-            </div>
-        <div class="item active">
-        	
-          <div class="container">
-            <div class="row">
-	        <div class="col-lg-4 text-center">
-	        	<img class="img-circle" src="bino.png" alt="Generic placeholder image" style="width: 100px; height: 100px">
-	          <h2>Keep your friends safe</h2>
-	          <p>Make sure your friends are safe when they go out</p>
-	        </div><!-- /.col-lg-4 -->
-	        <div class="col-lg-4 text-center">
-	        	<img class="img-circle" src="bino2.png" alt="Generic placeholder image" style="width: 100px; height: 100px">
-	          <h2>Your friends keep you safe</h2>
-	          <p>Make sure you get back home safe when you go out</p>
-	        </div><!-- /.col-lg-4 -->
-	        <div class="col-lg-4 text-center">
-	          <img class="img-circle" src="Panic.png" alt="Generic placeholder image" style="width: 100px; height: 100px">
-	          <h2>Panic!</h2>
-	          <p>When something bad happens, your friends will know</p>
-	        </div><!-- /.col-lg-4 -->
-	      </div><!-- /.row -->
-          </div>
-        </div>
-      </div>
-    </div><!-- /.carousel -->
+<div class="jumbotron" style="background: #FFFFFF;">
+	<div class="container-fluid">
+	   <div class="row" style="margin-bottom:30px;">
+	   	<div class="text-center"><h2>Features </h2></div>
+	   </div>
+	   <div class="row">
+		   	<div class="col-md-4 text-center">
+		   	<img class="img" src="images/settings.png" alt="image" style="width: 100px; height: 100px">
+	          <h3>Quick Setup</h3>
+	          <p>Get it up and running in no time</p>
+		  	</div>
+		  	<div class="col-md-4 text-center">
+				<img class="img" src="images/battery.png" alt="image" style="width: 100px; height: 100px">
+				<h3>Battery Efficient</h3>
+				<p>Making sure your battery</br> makes it through the night</p>
+		  	</div>
+		  	<div class="col-md-4 text-center">
+		  		<img class="img" src="images/pie.png" alt="image" style="width: 100px; height: 100px">
+	          	<h3>Ease of use</h3>
+	         	<p>Easy as pie</p>
+		  	</div>
+		</div>
+	</div>
+</div>
 
-    <!-- Carouse2
-    ================================================== -->
-    <div id="myCarouse3" class="carouse3" data-ride="carouse3" style =" background: #009933">  
-      <div class="carousel-inner">
-        <div class="item active">
-        	<div class="text-center">
-            	<div class ="fa text-center"  >
-	              <h1>Features</h1>
-	            </div>
-            </div>
-          <div class="container">
-            <div class="row">
-	        <div class="col-lg-4 text-center">
-	          <img class="img-circle" src="Setting.png" alt="Generic placeholder image" style="width: 100px; height: 100px">
-	          <h2>Easy set up</h2>
-	          <p>Sign up and your application is ready.</p>
-	        </div><!-- /.col-lg-4 -->
-	        <div class="col-lg-4 text-center">
-	          <img class="img-circle" src="Battery.png" alt="Generic placeholder image" style="width: 150px; height: 100px">
-	          <img class="img-circle" src="Data.png" alt="Generic placeholder image" style="width: 100px; height: 100px">
-	          <h2>Battery Efficient</h2>
-	          <p>Battery levels will not be drained unreasonably</p>
-	        </div><!-- /.col-lg-4 -->
-	        <div class="col-lg-4 text-center">
-	          <img class="img-circle" src="pie.png" alt="Generic placeholder image" style="width: 100px; height: 100px">
-	          <h2>Easy to use</h2>
-	          <p>Setting a session is easy as pie</p>
-	        </div><!-- /.col-lg-4 -->
-	      </div><!-- /.row -->
-          </div>
-        </div>
-      </div>
-    </div><!-- /.carouse3 -->
 
-    
+
+
+
 </body>
 </html>

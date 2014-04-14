@@ -9,6 +9,8 @@
 		<script type="text/javascript" src='/javascripts/jquery-1.9.1.min.js'></script>    
 		<script type="text/javascript" src='/javascripts/index.js'></script>    
 		<script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/moment.js/2.5.1/moment.min.js"></script>
+		<!-- Latest compiled and minified JavaScript -->
+		<script src="//netdna.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min.js"></script>
 
 
 		<script type="text/javascript">
@@ -21,6 +23,8 @@
 			 	// }
 			 	var startDate = document.getElementById("startDate");
 		     	startDate.innerHTML=moment(<%= session.session.startDate %>).format("dddd, MMMM Do, h:mm a");
+		     	var endDate = document.getElementById("endDate");
+		     	endDate.innerHTML=moment(<%= session.session.endDate %>).format("dddd, MMMM Do, h:mm a");
 		     	var endDate = document.getElementById("endDate");
 		     	endDate.innerHTML=moment(<%= session.session.endDate %>).format("dddd, MMMM Do, h:mm a");
 
@@ -63,7 +67,7 @@
 	    			});
 				} 	
 
-				var tableHTML = '<table class="table text-center" style="width:1000px">';
+				var tableHTML = '<table class="table text-center " style="width:1000px">';
 				tableHTML += '<th class="text-center">TIME</th>';
 				tableHTML += '<th class="text-center">ADDRESS</th>';
 
@@ -130,8 +134,15 @@
 			}
 
 			function initializeLocations(){
-			  setup();
-		      var pathArray = window.location.href.split( '/' );
+			  	setup();
+				var url = window.location.href;
+				var pathArray;
+				if(url.indexOf('?id')!=-1){
+				pathArray = url.split('=');
+				}
+				else{
+				pathArray = url.split('/');
+				}
 		      var pathCreated = window.location.origin+"/getLocationsArrayForSession/"+pathArray[pathArray.length-1];
 		       $.get(pathCreated,function(data,status){
 		         loadMap(data);
@@ -147,28 +158,34 @@
 		<div class = "container-fluid">
 			<div class="row">
 			<div class="text-center">
-				<h1><span class="fa"></span> <%= session.session.email %>'s Session</h1>
-				<button type="button" class="btn btn-danger btn-xs">Call</button>
+				<h2><span class="fa"></span> <%= session.session.email %>'s Session</h2>
+<!-- 				<button type="button" class="btn btn-danger btn-xs">Call</button>
 				<button type="button" class="btn btn-primary btn-xs">E-mail</button>
-			</div>
+ -->			</div>
 			</div>
 			<div class="row">
 				<div class="col-md-12">
-					<div id="map" style="width:100%;height:250px;margin-top:10px;margin-bottom:20px"></div>
+					<div id="map" style="width:100%;height:350px;margin-top:10px;margin-bottom:20px"></div>
 				</div>
 			</div>
 			<div class="row">
 			<div class="col-sm-6 col-sm-offset-2">
-			<div><span class="fa"></span>
-				<b>START | </b> <span id="startDate">Date</span>
+			<div>
+				<b>START | </b><span id="startDate">Date</span>
 			</div>
-			<div><span class="fa"></span>
-				<b>END |  </b> <span id="endDate">Date</span>
+			<div>
+				<b>END |  </b><span id="endDate">Date</span>
 			</div>
-<!-- 			<div><span class="fa" ></span>
-				<b>Guardians:</b> <span id="guardianArray"><%= guardianContactArray = session.session.guardianContactArray %><span>
+			<div>	
+				<b>GUARDIAN |  </b>
+				<% if (contactArray.length) { %>
+				    <% contactArray.forEach(function(contact){ %>
+				      <%= contact.phone %>
+				    <% }) %>
+				<% } %>
 			</div>
- -->
+
+ 	
 
 			<div id="Table" style="margin-top:20px"></div>
 			</div>

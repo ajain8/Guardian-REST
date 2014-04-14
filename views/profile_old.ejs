@@ -1,0 +1,50 @@
+<!-- views/profile.ejs -->
+<!doctype html>
+<html>
+<head>
+	<title> Guardian </title>
+	<link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.0.2/css/bootstrap.min.css">
+	<link rel="stylesheet" href="//netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.min.css">
+	<style>
+		body 		{background: #3399CC;  }
+	</style>
+</head>
+<body>
+	<!-- Navbar
+	======================================================= -->
+	<div class="navbar navbar-inverse navbar-fixed-top">
+      	<div class="container">
+         	<div class="navbar-header" style="float: left; margin-right: 10px">
+            	<a id="gTab" class="navbar-brand active" href="http://localhost:3000">Guardian</a>
+         	</div>
+         	<div class = "command-bar active fa"  style="margin-top:15px; float: left;" >
+				<form accept-charset="UTF-8" action="/search" class="command-bar-form fa" id="top_search_form" method="get" >
+					<input type="text" data-hotkey="/ s" name="q" id="js-command-bar-field" placeholder="Search Session" tabindex="1" autocapitalize="off">
+				</form>
+			</div>
+			<div class= "header-actions">
+				<a href="/signup" class="btn btn-default" style=" margin-top: 8px ;float:right;"><span class="active"></span> Sign Up </a>
+				<a href="/login" class="btn btn-primary" style=" margin-top: 8px ;float:right; margin-right: 8px"><span class="active"></span> Login </a>
+				
+			</div >
+      	</div>
+   	</div> 
+
+		
+	<!-- Carousel
+    ================================================== -->
+    <div id="myCarousel"data-ride="carousel" style ="padding-top: 55px; background: #3399CC; padding-bottom: 10px">
+          <div class="container row">
+            <!-- SIGNUP FORM -->
+            <div class=" text-center">
+            	<p>
+						<strong> Name </strong>: <%= user.local.name %> <br>
+						<strong> id </strong>: <%= user._id %><br>
+						<strong> Email </strong>: <%= user.local.email %><br>
+						<!-- <strong> password </strong>: <%= user.local.password %> -->
+					</p>
+            </div>
+
+          </div>
+    </div><!-- /.carousel -->
+</body>
