@@ -92,12 +92,13 @@ module.exports = function(app, passport, io) {
 	// });
 
 	app.post('/api/createSession', isLoggedIn, function(req, res, next){
+			// console.log(req.user.local);
 			var userEmail = req.user.local.email;
 			var userName = req.user.local.name;
 			var newSession = new Session();
-			console.log(JSON.stringify(req.body));
-			newSession.session.name = name;
-			newSession.session.email = email;
+			// console.log(JSON.stringify(req.body));
+			newSession.session.name = userName;
+			newSession.session.email = userEmail;
 			newSession.session.startDate = req.body.startDate;
 			newSession.session.endDate = req.body.endDate;
 			newSession.session.finalLocation = req.body.finalLocation;
@@ -107,21 +108,24 @@ module.exports = function(app, passport, io) {
 				if (!err) {
 					var guardianContactArray = newSession.session.guardianContactArray;
 				    console.log("session created");
+				    console.log(guardianContactArray);
 				    for (var i=0; i<guardianContactArray.length; i++) {
 				    	var guardian = guardianContactArray[i];
-				    	console.log("Guardian: "+guardian);
+				    	var startDate=  newSession.session.startDate;
+				    	var endDate = newSession.session.startDate;
+				    	//console.log("Guardian: "+guardian);
 				    	pendingSessionQueue[guardian.phone] = newSession._id; //ching code
 				    	//console.log("Value of guardian.smsUpdates: "+guardian);
 				    	 if(guardian.smsUpdates === true){
 				    	 	//console.log("I reach here");
-				    	 	twilio_helper.sendGuardianRequest(guardian, userName, startDate);
+				    	 	twilio_helper.sendGuardianRequest(guardian, userName, startDate, endDate);
 				    	 }
 				    }
 				    //console.log("BOOYEAH: "+newSession._id);
 				    //console.log("Session shit: "+newSession);
 					return res.send(newSession);
 				    } else {
-				      return console.log(err);
+				      return res.send(401);
 				    }
 			});
 		}
@@ -290,7 +294,6 @@ module.exports = function(app, passport, io) {
 	app.get('/getLocationsArrayForSession/:id', function(req, res){
 		Session.findById(req.params.id, function (err, session) {
 			if (!err) {
-				console.log(session.session.locationsArray);
 				return res.json(session.session.locationArray);
 			} else {
 				return res.send(404);
@@ -316,14 +319,16 @@ module.exports = function(app, passport, io) {
 				session.save(function(err) {
 					if (!err) {
 				      console.log("updated");
+				      return res.json(true);
 				    } else {
 				      console.log(err);
+				      return res.json(false);
 				    }
 				});
 
 				io.sockets.emit("updatedLocationArray");
 				// console.log("Client Socket Array: "+clients);
-				return res.json(session);
+				//return res.json(session);
 			}
 			else {
 				console.log(err)

@@ -14,12 +14,32 @@
 	<script src="http://code.jquery.com/jquery-1.9.1.js"></script>
 	<script src="//netdna.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min.js"></script>
 	<script type="text/javascript" src="http://ajax.aspnetcdn.com/ajax/jquery.validate/1.12.0/jquery.validate.js"></script>
+	<script type="text/javascript" src="/javascripts/jquery.validate.bootstrap.popover.min.js"></script>
 
 	<script>
-		// (function ($) {
-		// $(document);
-		// }(jQuery));
+		(function ($) {
+		$(document);
+		}(jQuery));
 		$(".alert").alert();
+
+		// $('#signin-form').validate_popover({onsubmit: false, popoverPosition: 'top'});
+		// $('#signin-form').validate().form();
+
+		// $(function() {
+
+		//   $('#signin-form').validate_popover({onsubmit: true, popoverPosition: 'right'});
+
+		//   $(".submit-btn").click(function(ev) {
+		//   	ev.preventDefault();
+		    
+		//     $('#signin-form').validate().form();
+		//   	return true;
+		//   });
+
+		//   $(window).resize(function() {
+		// 		$.validator.reposition();
+		// 	});
+		// });
 	</script>
 </head>
 <body>
@@ -53,7 +73,7 @@
 
     <!-- Collect the nav links, forms, and other content for toggling -->
     <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
- 	  <form class="navbar-form navbar-left" role="form" action="/getSession" method="get">
+ 	  <form class="navbar-form navbar-left" role="form" action="/getSession" method="get" accept-charset="UTF-8">
         <div class="form-group">
           <input type="text" class="form-control" placeholder="Session ID" name="id">
         </div>
@@ -62,7 +82,7 @@
 
  	  <form class="navbar-form navbar-right" action="/login" method="post" role="form">
         <div class="form-group">
-          <input type="text" class="form-control" placeholder="Email" name="email">
+	       <input type="text" class="form-control" placeholder="Email" name="email">
         </div>
         <div class="form-group">
           <input type="password" class="form-control" placeholder="Password" name="password">
@@ -83,17 +103,17 @@
 		  		<h3>An advanced and efficent GPS tracker for a safer night out</h3>
 			</div>
 		  	<div class="col-md-3 col-md-offset-1">
-				<form action="/signup" method="post" id="signup">
+				<form novalidate="novalidate" action="/signup" method="post" id="signin-form" accept-charset="UTF-8">
 					<div class="form-group">
-						<input type="text" name="field2" class="form-control" placeholder="Enter your name" name="username" style="padding: 25px 19px;font-size: 19px;">
+							<input type="text" class="form-control required" placeholder="Enter your name" name="username" style="padding: 25px 19px;font-size: 19px;" data-popover-offset="10,18">
 					</div>
 					<div class="form-group">
-						<input type="text" name="field1" class="form-control" placeholder="Your email" name="email" style="padding: 25px 19px;font-size: 19px;">
+						<input type="text" class="form-control email required" placeholder="Your email" name="email" style="padding: 25px 19px;font-size: 19px;" data-popover-offset="10,18">
 					</div>
 					<div class="form-group">
-						<input type="password" class="form-control" placeholder="Create a password" name="password" style="padding: 0px 19px 0px 19px; font-size: 19px;height: 50px;">
+						<input type="password" class="form-control required" minlength="6" maxlength="40" placeholder="Create a password" name="password" style="padding: 0px 19px 0px 19px; font-size: 19px;height: 50px;" data-popover-offset="10,18">
 					</div>
-					<button type="submit" class="btn btn-lg btn-success btn-block">Sign Up</button>
+					<button type="submit" class="btn btn-lg btn-success btn-block submit-btn">Sign Up</button>
 				</form>
 		  	</div>
 		</div>

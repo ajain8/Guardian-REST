@@ -25,8 +25,6 @@
 		     	startDate.innerHTML=moment(<%= session.session.startDate %>).format("dddd, MMMM Do, h:mm a");
 		     	var endDate = document.getElementById("endDate");
 		     	endDate.innerHTML=moment(<%= session.session.endDate %>).format("dddd, MMMM Do, h:mm a");
-		     	var endDate = document.getElementById("endDate");
-		     	endDate.innerHTML=moment(<%= session.session.endDate %>).format("dddd, MMMM Do, h:mm a");
 
 			 }
 			function loadMap(locationsArray) 
@@ -180,7 +178,7 @@
 				<b>GUARDIAN |  </b>
 				<% if (contactArray.length) { %>
 				    <% contactArray.forEach(function(contact){ %>
-				      <%= contact.phone %>
+				      <%= contact.name %>
 				    <% }) %>
 				<% } %>
 			</div>

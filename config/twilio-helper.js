@@ -8,17 +8,18 @@ var client = new twilio.RestClient('AC0b9e9c8a50f9acb63de3571d79f42a91', '833aaa
  
 // Pass in parameters to the REST API using an object literal notation. The
 // REST client will handle authentication and response serialzation for you.
-exports.sendGuardianRequest = function (guardianContact, requesterName, requestStartDate){
+exports.sendGuardianRequest = function (guardianContact, requesterName, requestStartDate, requestEndDate){
         var guardianName = guardianContact.name;
-        var requestStartTime = moment(requestStartDate).format("hh A");
+        var requestStartTime = moment(requestStartDate).format("h A");
+        var requestEndTime = moment(requesEndDate).format("hh A");
+
         // 'Hello '+guardianName+'! Would you like to be'+requesterName+'\'s Guardian from '+requestStartTime+' onwards, please respond with a YES or NO?';
         var messageBody = 'Hello '+guardianName;
-        messageBody += '! Would you like to be'+requesterName;
+        messageBody += '! Would you like to be '+requesterName;
         messageBody += '\'s Guardian from '+requestStartTime;
         messageBody += ' onwards, please respond with a YES or NO';
-        console.log(requestStartTime);
-        
-        console.log("Twilio Helper with "+guardianContact.phone+" "+email);
+        console.log(messageBody);
+        //console.log("Twilio Helper with "+guardianContact.phone+" "+email);
         client.sendSms({
         to: guardianContact.phone,
         from:'+16788827697',
