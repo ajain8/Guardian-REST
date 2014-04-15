@@ -244,6 +244,16 @@ module.exports = function(app, passport, io) {
 	    dist = dist * 60 * 1.1515;
 	    return dist * 1.609344;
 	}
+
+	app.get('/api/getSessionsForUser/:id', isLoggedIn, function(req, res){
+		console.log(req.params.id);
+		Session.find({email:req.params.id}, function (err, sessions){
+			if(!err)
+			{
+				return res.json(sessions);
+			}
+		});
+	});
 	app.post('/api/messageRecieved', function(req,res){
 		//console.log(req);
 		// if (twilio.validateExpressRequest(req, '833aaa052df7531546d020157ddc52fb')) {
