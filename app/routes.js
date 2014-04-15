@@ -6,7 +6,9 @@ var uuid = require('node-uuid');
 var express = require('express');
 var clients = [];
 var pendingSessionQueue = [];
+var activeSessions= [];
 var twilio = require('twilio');
+var schedule = require('node-schedule');
 
 // var _ = require("underscore");
 
@@ -112,15 +114,101 @@ module.exports = function(app, passport, io) {
 				    for (var i=0; i<guardianContactArray.length; i++) {
 				    	var guardian = guardianContactArray[i];
 				    	var startDate=  newSession.session.startDate;
-				    	var endDate = newSession.session.startDate;
+				    	var endDate = newSession.session.endDate;
 				    	//console.log("Guardian: "+guardian);
 				    	pendingSessionQueue[guardian.phone] = newSession._id; //ching code
 				    	//console.log("Value of guardian.smsUpdates: "+guardian);
 				    	 if(guardian.smsUpdates === true){
 				    	 	//console.log("I reach here");
-				    	 	twilio_helper.sendGuardianRequest(guardian, userName, startDate, endDate);
+				    	 	//twilio_helper.sendGuardianRequest(guardian, userName, startDate, endDate);
 				    	 }
 				    }
+				    // var startDate = new Date(newSession.session.startDate);
+				    // var date = new Date(newSession.session.endDate);
+				    // var halfWay = new Date(newSession.session.startDate + ((newSession.session.endDate - newSession.session.startDate)/2));
+				    // var sessionId = newSession._id;
+				    // console.log("startDate = " + startDate);
+				    // console.log("endDate = " + date );
+				    // console.log("Half way = " + halfWay);
+				    // (function(sessionId){		
+					   //  activeSessions[sessionId] = schedule.scheduleJob(date, function(){
+					   //  	// var j = schedule.scheduleJob(date, function(){
+					   //  	Session.findById(sessionId, function (err, session) {
+					   //  	var finalLoc =session.session.finalLocation;
+					   //  	var lastLoc =session.session.locationArray[session.session.locationArray.length -1];
+					   //  	var dist = distance(finalLoc.latitude,
+					   //  						finalLoc.longitude,
+					   //  						lastLoc.latitude,
+					   //  						lastLoc.longitude);
+
+					   //  	var currtime = new Date();
+						  //   var time1 = currtime.getTime();
+						  //   var lastTime = new Date(lastLoc.timeStamp);
+						  //   var time2 = lastTime.getTime();
+						  //   if((time1 - time2 ) > (15*60*1000) )
+						  //   {
+						  //   	console.log('last update from '+session.session.name + ' is more than 15 minutes ago');
+						  //   	for (var i=0; i<session.session.guardianContactArray.length; i++) {
+							 //    	var message = 'last update from '+session.session.name + ' is more than 15 minutes ago';
+							 //    	//twilio_helper.sendMessage(message, session.session.guardianContactArray[i]);
+						  //   	}
+						  //   }
+						  //   else
+						  //   {
+						  //   	console.log(session.session.name + ' just updated recently');
+						  //   }
+
+					   //  	if(dist > 0.1)
+					   //  	{
+						  //   	console.log(session.session.name + ' has not reached home, call him');
+						  //   	for (var i=0; i<session.session.guardianContactArray.length; i++) {
+							 //    	var message = session.session.name + " has not reached home, call him";
+							 //    	//twilio_helper.sendMessage(message, session.session.guardianContactArray[i]);
+						  //   	}
+						  //   }
+						  //   else
+						  //   {
+						  //   	console.log(session.session.name + ' has arrived home');
+						  //   	for (var i=0; i<session.session.guardianContactArray.length; i++) {
+							 //    	var message = session.session.name + " has arrived home!";
+							 //    	//twilio_helper.sendMessage(message, session.session.guardianContactArray[i]);
+						  //   	}
+						  //   	activeSessions[session._id].cancel;
+						  //   	delete activeSessions[session._id];
+						  //   }
+						  //   	//call delete session
+						    
+					   //  	});
+				    // 	});
+				    // })(sessionId);
+
+				    // (function(sessionId){		
+					   //  var j = schedule.scheduleJob(halfWay, function(){
+					   //  	// var j = schedule.scheduleJob(date, function(){
+					   //  	Session.findById(sessionId, function (err, session) {
+					   //  	var lastLoc =session.session.locationArray[session.session.locationArray.length -1];
+					   //  	// var currtime = new Date();
+					   //  	var time1 = halfWay.getTime();
+					   //  	var lastTime = new Date(lastLoc.timeStamp);
+					   //  	var time2 = lastTime.getTime();
+					   //  	if((time1 - time2 > (15*60*1000) ) || session.session.locationArray.length == 0)
+					   //  	{
+						  //   	console.log(session.session.name + ' has not updated his location for 15 minutes, call him');
+						  //   	for (var i=0; i<session.session.guardianContactArray.length; i++) {
+							 //    	var message = session.session.name + " has not updated his location for 15 minutes, call him";
+							 //    	//twilio_helper.sendMessage(message, session.session.guardianContactArray[i]);
+						  //   	}
+						  //   }
+						  //   else
+						  //   {
+						  //   	console.log(session.session.name + ' is updating');
+						  //   	j.cancel;
+						  //   }
+						  //   	//call delete session
+					   //  	});
+				    // 	});
+				    // })(sessionId);
+					
 				    //console.log("BOOYEAH: "+newSession._id);
 				    //console.log("Session shit: "+newSession);
 					return res.send(newSession);
@@ -131,6 +219,19 @@ module.exports = function(app, passport, io) {
 		}
 	 );
 
+	function distance(lat1, lon1, lat2, lon2) {
+	    var radlat1 = Math.PI * lat1/180;
+	    var radlat2 = Math.PI * lat2/180;
+	    var radlon1 = Math.PI * lon1/180;
+	    var radlon2 = Math.PI * lon2/180;
+	    var theta = lon1-lon2;
+	    var radtheta = Math.PI * theta/180;
+	    var dist = Math.sin(radlat1) * Math.sin(radlat2) + Math.cos(radlat1) * Math.cos(radlat2) * Math.cos(radtheta);
+	    dist = Math.acos(dist);
+	    dist = dist * 180/Math.PI;
+	    dist = dist * 60 * 1.1515;
+	    return dist * 1.609344;
+	}
 	app.post('/api/messageRecieved', function(req,res){
 		//console.log(req);
 		// if (twilio.validateExpressRequest(req, '833aaa052df7531546d020157ddc52fb')) {
