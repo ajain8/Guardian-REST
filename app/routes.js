@@ -157,11 +157,11 @@ module.exports = function(app, passport, io) {
 						    console.log('endSession check: '+currtime + lastTime);
 						    if((time1 - time2 ) > (15*60*1000) )
 						    {
-						    	console.log('last update from '+session.session.name + ' is more than 15 minutes ago');
-						    	for (var i=0; i<session.session.guardianContactArray.length; i++) {
-							    	message += 'last update from '+session.session.name + ' is more than 15 minutes ago';
+						    	console.log('last update from '+session.session.name + ' is more than 15 minutes ago. ');
+						    	//for (var i=0; i<session.session.guardianContactArray.length; i++) {
+							    	message += 'last update from '+session.session.name + ' is more than 15 minutes ago. ';
 							    	//twilio_helper.sendMessage(message, session.session.guardianContactArray[i]);
-						    	}
+						    	//}
 						    }
 						    else
 						    {
@@ -171,23 +171,22 @@ module.exports = function(app, passport, io) {
 					    	if(dist > 0.1)
 					    	{
 						    	console.log(session.session.name + ' has not reached home, call him');
-						    	for (var i=0; i<session.session.guardianContactArray.length; i++) {
-							    	message += session.session.name + " has not reached home, call him";
+						    	
+							    message += session.session.name + " has not reached home, call him";
 							    	//twilio_helper.sendMessage(message, session.session.guardianContactArray[i]);
-						    	}
 						    }
 						    else
 						    {
-						    	console.log(session.session.name + ' has arrived home');
-						    	for (var i=0; i<session.session.guardianContactArray.length; i++) {
-							    	message += session.session.name + " has arrived home!";
+						    	console.log(session.session.name + ' has arrived home!');
+							    message += session.session.name + " has arrived home!";
 							    	//twilio_helper.sendMessage(message, session.session.guardianContactArray[i]);
-						    	}
-						    	activeSessions[session._id].cancel;
+						    	//activeSessions[session._id].cancel;
 						    	delete activeSessions[session._id];
 						    }
 						    	//call delete session
-						    twilio_helper.sendMessage(message, session.session.guardianContactArray[i]);
+						    for (var i=0; i<session.session.guardianContactArray.length; i++) {
+						    	twilio_helper.sendMessage(message, session.session.guardianContactArray[i]);
+							}
 					    	});
 				    	});
 				    })(sessionId);
@@ -209,13 +208,13 @@ module.exports = function(app, passport, io) {
 						    	console.log(session.session.name + ' has not updated his location for 15 minutes, call him');
 						    	for (var i=0; i<session.session.guardianContactArray.length; i++) {
 							    	var message = session.session.name + " has not updated his location for 15 minutes, call him";
-							    	//twilio_helper.sendMessage(message, session.session.guardianContactArray[i]);
+							    	twilio_helper.sendMessage(message, session.session.guardianContactArray[i]);
 						    	}
 						    }
 						    else
 						    {
 						    	console.log(session.session.name + ' is updating');
-						    	j.cancel;
+						    	//j.cancel;
 						    }
 						    	//call delete session
 					    	});
