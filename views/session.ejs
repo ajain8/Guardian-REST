@@ -11,8 +11,6 @@
 		<script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/moment.js/2.5.1/moment.min.js"></script>
 		<!-- Latest compiled and minified JavaScript -->
 		<script src="//netdna.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min.js"></script>
-
-
 		<script type="text/javascript">
 			 function setup()
 			 {
@@ -25,7 +23,22 @@
 		     	startDate.innerHTML=moment(<%= session.session.startDate %>).format("dddd, MMMM Do, h:mm a");
 		     	var endDate = document.getElementById("endDate");
 		     	endDate.innerHTML=moment(<%= session.session.endDate %>).format("dddd, MMMM Do, h:mm a");
+			 }
 
+			function setupLinks(locationsArray){
+				console.log("I GET HERE");
+			 	for(var i=0;i<locationsArray.length-1;i++){
+					//console.log(i);
+			 		var addressHTML = document.getElementById("addr_"+i);
+			 		addressHTML.onclick = function(){
+			 			//map = new google.maps.Map(document.getElementById('map')); 
+			 			var focus = new google.maps.LatLng(locationsArray[i].latitude, locationsArray[i].longitude);
+			 			map.panTo(focus);
+			 			console.log("WHOOP WHOOP");
+			 			//alert('Hello!');
+			 			return false;
+			 		}
+			 	}
 			 }
 			function loadMap(locationsArray) 
 			{
@@ -101,7 +114,7 @@
 	            	});
 	            	})(i);
 	       			tableHTML += "<tr><td>" + moment(locationsArray[i].timeStamp).format("dddd, h:mm a") + "</td>";  
-	                tableHTML += "<td id=\"addr_"+i+"\">(" + locationsArray[i].latitude + " / "+ locationsArray[i].longitude + ")</td>";
+	                tableHTML += "<td><a id=\"addr_"+i+"\" href=\"#\">(" + locationsArray[i].latitude + " / "+ locationsArray[i].longitude + ")</a></td>";
 	                tableHTML += "</tr>";  
 	            }
 	            // function callback(i, results, status){
@@ -144,11 +157,10 @@
 		      var pathCreated = window.location.origin+"/getLocationsArrayForSession/"+pathArray[pathArray.length-1];
 		       $.get(pathCreated,function(data,status){
 		         loadMap(data);
+		         setupLinks(data);
 		      });
 			}
-			
 			window.onload=initializeLocations;
-			
 		</script>
 		
 	</head>

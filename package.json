@@ -19,7 +19,8 @@
     "socket.io": "~0.9.16",
     "moment": "~2.5.1",
     "twilio": "*",
-    "nodemailer": "~0.6.2"
+    "nodemailer": "~0.6.2",
+    "node-schedule": "~0.1.13"
   },
   "engines": {
     "node": "0.10.24"

@@ -245,15 +245,22 @@ module.exports = function(app, passport, io) {
 	    return dist * 1.609344;
 	}
 
-	app.get('/api/getSessionsForUser/:id', isLoggedIn, function(req, res){
-		console.log(req.params.id);
+	app.get('/api/getSessionIdsForUser', function(req, res){
+		console.log(req.query.email);
 		Session.find({email:req.params.id}, function (err, sessions){
 			if(!err)
 			{
-				return res.json(sessions);
+				var sessionIdArray=[];
+				for(var i=0;i<sessions.length-1;i++){
+					sessionIdArray.push(sessions[i]._id);
+				}
+				return res.json(sessionIdArray);
 			}
+			else 
+				return res.send(401);
 		});
 	});
+
 	app.post('/api/messageRecieved', function(req,res){
 		//console.log(req);
 		// if (twilio.validateExpressRequest(req, '833aaa052df7531546d020157ddc52fb')) {
@@ -467,7 +474,8 @@ module.exports = function(app, passport, io) {
 				return res.send(404);
 			}
 			if(!err && session.session.email === email){
-				console.log(session);
+				//console.log(session);
+				var guardianContactArray = newSession.session.guardianContactArray;
 				for(var i=0;i<guardianContactArray.length;i++){
 					var guardian=guardianContactArray[i];
 					delete pendingSessionQueue[guardian.phone];
