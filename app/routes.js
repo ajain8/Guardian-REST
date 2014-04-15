@@ -76,6 +76,14 @@ module.exports = function(app, passport, io) {
 		res.redirect('/');
 	});
 
+	// =====================================
+	// LOGOUT ==============================
+	// =====================================
+	app.get('/api/logout', function(req, res) {
+		req.logout();
+		return res.json(true);
+	});
+
 	app.post('/api/login', function(req, res, next) {
 	  passport.authenticate('local-login', function(err, user, info) {
 	    if (err) { return next(err); }
@@ -112,7 +120,7 @@ module.exports = function(app, passport, io) {
 				    for (var i=0; i<guardianContactArray.length; i++) {
 				    	var guardian = guardianContactArray[i];
 				    	var startDate=  newSession.session.startDate;
-				    	var endDate = newSession.session.startDate;
+				    	var endDate = newSession.session.endDate;
 				    	//console.log("Guardian: "+guardian);
 				    	pendingSessionQueue[guardian.phone] = newSession._id; //ching code
 				    	//console.log("Value of guardian.smsUpdates: "+guardian);

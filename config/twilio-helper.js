@@ -11,7 +11,7 @@ var client = new twilio.RestClient('AC0b9e9c8a50f9acb63de3571d79f42a91', '833aaa
 exports.sendGuardianRequest = function (guardianContact, requesterName, requestStartDate, requestEndDate){
         var guardianName = guardianContact.name;
         var requestStartTime = moment(requestStartDate).format("h A");
-        var requestEndTime = moment(requesEndDate).format("hh A");
+        var requestEndTime = moment(requestEndDate).format("hh A");
 
         // 'Hello '+guardianName+'! Would you like to be'+requesterName+'\'s Guardian from '+requestStartTime+' onwards, please respond with a YES or NO?';
         var messageBody = 'Hello '+guardianName;
