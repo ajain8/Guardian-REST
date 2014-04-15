@@ -78,6 +78,14 @@ module.exports = function(app, passport, io) {
 		res.redirect('/');
 	});
 
+	// =====================================
+	// LOGOUT ==============================
+	// =====================================
+	app.get('/api/logout', function(req, res) {
+		req.logout();
+		return res.json(true);
+	});
+
 	app.post('/api/login', function(req, res, next) {
 	  passport.authenticate('local-login', function(err, user, info) {
 	    if (err) { return next(err); }
