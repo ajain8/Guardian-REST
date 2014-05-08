@@ -5,10 +5,11 @@ var twilio_helper = require('../config/twilio-helper');
 var uuid = require('node-uuid');
 var express = require('express');
 var clients = [];
-var pendingSessionQueue = [];
-var activeSessions= [];
+var pendingSessionQueue = {};
+var activeSessions= {};
 var twilio = require('twilio');
 var schedule = require('node-schedule');
+var nodemailer = require("nodemailer");
 
 // var _ = require("underscore");
 
@@ -18,7 +19,7 @@ module.exports = function(app, passport, io) {
 	// =====================================
 	app.get('/', function(req, res) {
 		console.log("About to load index page");
-		res.render('index.ejs', { message1: req.flash('loginMessage'), message2: req.flash('signupMessage') }); // load the index.ejs file
+		res.render('index.ejs', { message1: req.flash('loginMessage'), message2: req.flash('signupMessage'), }); // load the index.ejs file
 	});
 
 	// =====================================
@@ -97,6 +98,27 @@ module.exports = function(app, passport, io) {
 	  })(req, res, next);
 	});
 
+	app.post('/api/alertPanic/:id', isLoggedIn, function(req, res) {
+		Session.findById(req.params.id, function (err, session) {
+			if(session === null){
+				return res.send(404);
+			}
+			if (!err) {
+				io.sockets.emit("alertPanic",{sessionID: req.params.id});
+				var guardianContactArray = session.session.guardianContactArray;
+				for (var i=0; i<guardianContactArray.length; i++) {
+				    	var guardian = guardianContactArray[i];
+				    	message = session.session.name+" has alerted a Panic signal, please call him immediately!";
+						twilio_helper.sendMessage(message, guardian);
+				}
+				return res.json(true);
+			} else {
+				return res.json(false);
+			}
+		});
+	});
+
+
 	// app.post('/api/login', userAuth, function(req, res){
 	// 	return res.json(true);
 	// });
@@ -115,12 +137,13 @@ module.exports = function(app, passport, io) {
 			newSession.session.locationArray = req.body.locationArray;
 			newSession.session.guardianContactArray = req.body.guardianContactArray;
 			newSession.save(function(err) {
-				if (!err) {
+				if (!err) {	
 					var guardianContactArray = newSession.session.guardianContactArray;
-				    console.log("session created");
-				    console.log(guardianContactArray);
+				    console.log("Session Created");
+				    //console.log(guardianContactArray);
 				    for (var i=0; i<guardianContactArray.length; i++) {
 				    	var guardian = guardianContactArray[i];
+				    	console.log(guardian.name+" : "+guardian.phone);
 				    	var startDate=  newSession.session.startDate;
 				    	var endDate = newSession.session.endDate;
 				    	//console.log("Guardian: "+guardian);
@@ -128,101 +151,99 @@ module.exports = function(app, passport, io) {
 				    	//console.log("Value of guardian.smsUpdates: "+guardian);
 				    	 if(guardian.smsUpdates === true){
 				    	 	//console.log("I reach here");
-				    	 	twilio_helper.sendGuardianRequest(guardian, userName, startDate, endDate);
+				    	 	var link = "https://guardian-11570.onmodulus.net/getSession/"+newSession._id;
+				    	 	twilio_helper.sendGuardianRequest(guardian, userName, startDate, endDate, link);
+				    	 	// if(req.user.local.e)
+				    	 	sendEmail(link, req.user.local, guardian);
 				    	 }
 				    }
 				    var startDate = new Date(newSession.session.startDate);
-				    var date = new Date(newSession.session.endDate);
+				    var endDate = new Date(newSession.session.endDate);
 				    var halfWay = new Date(newSession.session.startDate + ((newSession.session.endDate - newSession.session.startDate)/2));
 				    var sessionId = newSession._id;
-				    console.log("startDate = " + startDate);
-				    console.log("endDate = " + date );
-				    console.log("Half way = " + halfWay);
+				    console.log("Start Time: " + startDate);
+				    console.log("Half Time: " + halfWay);
+				    console.log("End Time: " + endDate);
 				    (function(sessionId){		
-					    activeSessions[sessionId] = schedule.scheduleJob(date, function(){
+					    activeSessions[sessionId] = schedule.scheduleJob(endDate, function(){
 					    	// var j = schedule.scheduleJob(date, function(){
 					    	Session.findById(sessionId, function (err, session) {
-					    	var finalLoc =session.session.finalLocation;
-					    	var lastLoc =session.session.locationArray[session.session.locationArray.length -1];
-					    	var dist = distance(finalLoc.latitude,
-					    						finalLoc.longitude,
-					    						lastLoc.latitude,
-					    						lastLoc.longitude);
+					    		if(!err && session!=null){
+						    		var finalLoc =session.session.finalLocation;
+							    	var lastLoc =session.session.locationArray[session.session.locationArray.length -1];
+							    	var dist = distance(finalLoc.latitude,
+							    						finalLoc.longitude,
+							    						lastLoc.latitude,
+							    						lastLoc.longitude);
 
-					    	var currtime = new Date();
-						    var time1 = currtime.getTime();
-						    var lastTime = new Date(lastLoc.timeStamp);
-						    var time2 = lastTime.getTime();
-						    var message;
-						    console.log('endSession check: '+currtime + lastTime);
-						    if((time1 - time2 ) > (15*60*1000) )
-						    {
-						    	console.log('last update from '+session.session.name + ' is more than 15 minutes ago. ');
-						    	//for (var i=0; i<session.session.guardianContactArray.length; i++) {
-							    	message += 'last update from '+session.session.name + ' is more than 15 minutes ago. ';
-							    	//twilio_helper.sendMessage(message, session.session.guardianContactArray[i]);
-						    	//}
-						    }
-						    else
-						    {
-						    	console.log(session.session.name + ' just updated recently');
-						    }
+							    	var currtime = new Date();
+								    var time1 = currtime.getTime();
+								    var lastTime = new Date(lastLoc.timeStamp);
+								    var time2 = lastTime.getTime();
+								    var message='';
 
-					    	if(dist > 0.1)
-					    	{
-						    	console.log(session.session.name + ' has not reached home, call him');
-						    	
-							    message += session.session.name + " has not reached home, call him";
-							    	//twilio_helper.sendMessage(message, session.session.guardianContactArray[i]);
-						    }
-						    else
-						    {
-						    	console.log(session.session.name + ' has arrived home!');
-							    message += session.session.name + " has arrived home!";
-							    	//twilio_helper.sendMessage(message, session.session.guardianContactArray[i]);
-						    	//activeSessions[session._id].cancel;
-						    	delete activeSessions[session._id];
-						    }
-						    	//call delete session
-						    for (var i=0; i<session.session.guardianContactArray.length; i++) {
-						    	twilio_helper.sendMessage(message, session.session.guardianContactArray[i]);
-							}
+							    	if(dist > 0.1)
+							    	{
+								    	console.log(session.session.name + ' has not reached his final destination, call him!');
+									    message += session.session.name + " has not reached his final destination, call him!";
+									    	//twilio_helper.sendMessage(message, session.session.guardianContactArray[i]);
+								    }
+								    else
+								    {
+								    	console.log(session.session.name + ' has arrived at his final destination!');
+									    message += session.session.name + ' has arrived at his final destination!';
+									    	//twilio_helper.sendMessage(message, session.session.guardianContactArray[i]);
+								    	//activeSessions[session._id].cancel;
+								    	//console.log("Before | Active Sessions: "+activeSessions);
+								    	//console.log("Session ID: "+session);
+
+								    	delete activeSessions[session._id];
+								    	//console.log("After | Active Sessions: "+activeSessions);
+								    }
+								    	//call delete session
+								    for (var i=0; i<session.session.guardianContactArray.length; i++) {
+								    	twilio_helper.sendMessage(message, session.session.guardianContactArray[i]);
+									}
+					    		}
+					    		else{
+					    			console.log("Session could not be found!");
+					    		}
 					    	});
 				    	});
 				    })(sessionId);
+					//console.log("Outside | Active Sessions: "+activeSessions);
+				    // (function(sessionId){		
+					   //  var j = schedule.scheduleJob(halfWay, function(){
+					   //  	// var j = schedule.scheduleJob(date, function(){
+					   //  	Session.findById(sessionId, function (err, session) {
+					   //  	var lastLoc =session.session.locationArray[session.session.locationArray.length -1];
+					   //  	// var currtime = new Date();
 
-				    (function(sessionId){		
-					    var j = schedule.scheduleJob(halfWay, function(){
-					    	// var j = schedule.scheduleJob(date, function(){
-					    	Session.findById(sessionId, function (err, session) {
-					    	var lastLoc =session.session.locationArray[session.session.locationArray.length -1];
-					    	// var currtime = new Date();
 
-
-					    	var time1 = halfWay.getTime();
-					    	var lastTime = new Date(lastLoc.timeStamp);
-					    	var time2 = lastTime.getTime();
-					    	console.log('halfway check: ' +halfWay + lastTime);
-					    	if((time1 - time2 > (15*60*1000) ) || session.session.locationArray.length == 0)
-					    	{
-						    	console.log(session.session.name + ' has not updated his location for 15 minutes, call him');
-						    	for (var i=0; i<session.session.guardianContactArray.length; i++) {
-							    	var message = session.session.name + " has not updated his location for 15 minutes, call him";
-							    	twilio_helper.sendMessage(message, session.session.guardianContactArray[i]);
-						    	}
-						    }
-						    else
-						    {
-						    	console.log(session.session.name + ' is updating');
-						    	//j.cancel;
-						    }
-						    	//call delete session
-					    	});
-				    	});
-				    })(sessionId);
+					   //  	var time1 = halfWay.getTime();
+					   //  	var lastTime = new Date(lastLoc.timeStamp);
+					   //  	var time2 = lastTime.getTime();
+					   //  	console.log('halfway check: ' +halfWay + lastTime);
+					   //  	if((time1 - time2 > (15*60*1000) ) || session.session.locationArray.length == 0)
+					   //  	{
+						  //   	console.log(session.session.name + ' has not updated his location for 15 minutes, call him');
+						  //   	for (var i=0; i<session.session.guardianContactArray.length; i++) {
+							 //    	var message = session.session.name + " has not updated his location for 15 minutes, call him";
+							 //    	twilio_helper.sendMessage(message, session.session.guardianContactArray[i]);
+						  //   	}
+						  //   }
+						  //   else
+						  //   {
+						  //   	console.log(session.session.name + ' is updating');
+						  //   	//j.cancel;
+						  //   }
+						  //   	//call delete session
+					   //  	});
+				    // 	});
+				    // })(sessionId);
 					
 				    //console.log("BOOYEAH: "+newSession._id);
-				    //console.log("Session shit: "+newSession);
+				    //console.log("Session Information: "+newSession);
 					return res.send(newSession);
 				    } else {
 				      return res.send(401);
@@ -270,7 +291,7 @@ module.exports = function(app, passport, io) {
 			var request_body = req.body.Body;
 			var request_from = req.body.From;
 			console.log(req.body);
-			console.log(pendingSessionQueue);
+			//console.log(pendingSessionQueue);
 
 			if(request_from in pendingSessionQueue){
 				console.log("I REACH HERE");
@@ -278,13 +299,14 @@ module.exports = function(app, passport, io) {
 				console.log("Contents of message: "+request_body);
 				if(request_body.match(/yes/gi) && request_body.length == 3)
 				{
-					resp.message('Thank you for replying, we will contact you soon!');
+					var link = "https://guardian-11570.onmodulus.net/getSession?id="+targetSession;
+					resp.message('Thank you! Session Link: '+link);
 					Session.findById(targetSession, function (err, session) {
 						if(session === null){
 							return res.send(404);
 						}
 						else if (!err && session != null) {
-							var guardianContactArray = sessions.session.guardianContactArray;
+							var guardianContactArray = session.session.guardianContactArray;
 							for(var i=0;i<guardianContactArray.length;i++)
 							{
 								var guardian = guardianContactArray[i];
@@ -306,16 +328,17 @@ module.exports = function(app, passport, io) {
 							return res.send(404);
 						}
 						else if (!err && session != null) {
+							var guardianContactArray = session.session.guardianContactArray;
 							for(var i=0;i<guardianContactArray.length;i++)
 							{
 								var guardian = guardianContactArray[i];
 								if(guardian.phone === request_from)
-									guardian.status = "active";
+									guardian.status = "inactive";
 								break;
 							}
 						}
 					});
-					delete pendingSessionQueue[response_from];
+					delete pendingSessionQueue[request_from];
 				}
 				else
 				{
@@ -332,10 +355,10 @@ module.exports = function(app, passport, io) {
 			    res.type('text/xml');
 		    	res.send(resp.toString());
 	    	}
-	    // }
-	    // else {
-	    //     res.send('you are not twilio.  Buzz off.');
-	    // }
+		    //}
+		    else {
+		        res.send('you are not twilio.  Buzz off.');
+		    }
 		
 	});
 
@@ -396,6 +419,7 @@ module.exports = function(app, passport, io) {
 					contactArray: session.session.guardianContactArray					
 				});
 			} else {
+
 				return res.send(404);
 			}
 		});
@@ -423,6 +447,9 @@ module.exports = function(app, passport, io) {
 
 	app.get('/getLocationsArrayForSession/:id', function(req, res){
 		Session.findById(req.params.id, function (err, session) {
+			if(session === null){
+				return res.send(404);
+			}
 			if (!err) {
 				return res.json(session.session.locationArray);
 			} else {
@@ -441,6 +468,7 @@ module.exports = function(app, passport, io) {
 			}
 			else if(!err && session.session.email === email && typeof req.body.location != 'undefined'){
 				//console.log("Headers: ", req.headers);
+				console.log(req.body.location);
 				var newLocation = req.body.location;
 				session.session.locationArray.push(newLocation);
 				//console.log("Session ID: "+session._id);
@@ -475,18 +503,20 @@ module.exports = function(app, passport, io) {
 			}
 			if(!err && session.session.email === email){
 				//console.log(session);
-				var guardianContactArray = newSession.session.guardianContactArray;
+				io.sockets.emit("deletedSession", {session_id: session._id});
+				var guardianContactArray = session.session.guardianContactArray;
 				for(var i=0;i<guardianContactArray.length;i++){
 					var guardian=guardianContactArray[i];
 					delete pendingSessionQueue[guardian.phone];
 				}
 				return session.remove(function(err){
 					if(!err){
-						console.log("removed");
-						return res.send("Session Removed");
+						console.log("Session Removed");
+						return res.json(true);
 					}
 					else {
 						console.log(err);
+						return res.json(false);
 					}
 				});
 			}
@@ -542,7 +572,38 @@ var userAuth = express.basicAuth(function(user, pass, callback) {
     });
 });
 
+function sendEmail(link, requester, guardian){
+	// create reusable transport method (opens pool of SMTP connections)
+var smtpTransport = nodemailer.createTransport("SMTP",{
+    service: "Gmail",
+    auth: {
+        user: "guardian.fh.gatech@gmail.com",
+        pass: "guardian2014"
+    }
+});
 
+// setup e-mail data with unicode symbols
+var mailOptions = {
+    from: "guardian.fh.gatech@gmail.com", // sender address
+    to: guardian.email, // list of receivers
+    subject: "Guardian Session", // Subject line
+    text: "", // plaintext body
+    html: "<p>Hello "+guardian.name+",</p><p>You can keep track of "+requester.name+" by using the following link,</p><p><b><a href=\""+link+"\">Session Link</a></b></p><p>Thank You</p>" // html body
+}
+
+// send mail with defined transport object
+	smtpTransport.sendMail(mailOptions, function(error, response){
+	if(error){
+	    console.log(error);
+	}else{
+	    console.log("Message sent: " + response.message);
+	}
+
+    // if you don't want to use this transport object anymore, uncomment following line
+    //smtpTransport.close(); // shut down the connection pool, no more messages
+});
+
+}
 // route middleware to make sure a user is logged in
 function isLoggedIn(req, res, next) {
 

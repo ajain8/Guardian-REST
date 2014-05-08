@@ -8,17 +8,20 @@ var client = new twilio.RestClient('AC0b9e9c8a50f9acb63de3571d79f42a91', '833aaa
  
 // Pass in parameters to the REST API using an object literal notation. The
 // REST client will handle authentication and response serialzation for you.
-exports.sendGuardianRequest = function (guardianContact, requesterName, requestStartDate, requestEndDate){
+exports.sendGuardianRequest = function (guardianContact, requesterName, requestStartDate, requestEndDate, link){
         var guardianName = guardianContact.name;
         var requestStartTime = moment(requestStartDate).format("h A");
         var requestEndTime = moment(requestEndDate).format("hh A");
 
-        // 'Hello '+guardianName+'! Would you like to be'+requesterName+'\'s Guardian from '+requestStartTime+' onwards, please respond with a YES or NO?';
         var messageBody = 'Hello '+guardianName;
         messageBody += '! Would you like to be '+requesterName;
         messageBody += '\'s Guardian from '+requestStartTime;
-        messageBody += ' onwards, please respond with a YES or NO';
-        console.log(messageBody);
+        messageBody += ' onwards, please respond with a YES or NO?';
+        //var messageBody = 'Hello '+guardianName+'! ';
+        // messageBody += requesterName+' would like  you to be their';
+        // messageBody += ' Guardian from '+requestStartTime;
+        //messageBody += ' Session Link: '+link;
+        //console.log(messageBody);
         //console.log("Twilio Helper with "+guardianContact.phone+" "+email);
         client.sendSms({
         to: guardianContact.phone,
@@ -33,18 +36,17 @@ exports.sendGuardianRequest = function (guardianContact, requesterName, requestS
             // The second argument to the callback will contain the information
             // sent back by Twilio for the request. In this case, it is the
             // information about the text messsage you just sent:
-            console.log('Success! The SID for this SMS message is:');
+            console.log('Success! The SMS was sent to '+guardianContact.name+' ('+guardianContact.phone+')');
             //console.log(message);
 
         } else {
-            console.log('Oops! There was an error.');
+            console.log(error);
+            console.log('Oops! The SMS could not be sent to '+guardianContact.name+' ('+guardianContact.phone+')');
         }
     });
 }
 
 exports.sendMessage = function (message, guardianContact){
-        
-        //console.log("Twilio Helper with "+guardianContact.phone+" "+email);
         client.sendSms({
         to: guardianContact.phone,
         from:'+16788827697',
@@ -58,11 +60,10 @@ exports.sendMessage = function (message, guardianContact){
             // The second argument to the callback will contain the information
             // sent back by Twilio for the request. In this case, it is the
             // information about the text messsage you just sent:
-            console.log('Success! The SID for this SMS message is:');
-            //console.log(message);
-
+            console.log('Success! The SMS was sent to '+guardianContact.name+' ('+guardianContact.phone+')');
         } else {
-            console.log('Oops! There was an error.');
+            console.log(error);
+            console.log('Oops! The SMS could not be sent to '+guardianContact.name+' ('+guardianContact.phone+')');
         }
     });
 }

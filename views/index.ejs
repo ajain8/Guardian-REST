@@ -3,85 +3,59 @@
 <html>
 <head>
 	<title> Guardian </title>
-	<style type="text/css">
-	label.error { float: none; color: red; padding-left: .5em; vertical-align: top; }
-	</style>
-
 	<link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.0.2/css/bootstrap.min.css"> <!-- load bootstrap css -->
 	<link rel="stylesheet" href="//netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.min.css"> <!-- load fontawesome -->
 	<link rel="stylesheet" href="stylesheets/index.css"> 
 	<!-- Latest compiled and minified JavaScript -->
-	<script src="http://code.jquery.com/jquery-1.9.1.js"></script>
-	<script src="//netdna.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min.js"></script>
-	<script type="text/javascript" src="http://ajax.aspnetcdn.com/ajax/jquery.validate/1.12.0/jquery.validate.js"></script>
-	<script type="text/javascript" src="/javascripts/jquery.validate.bootstrap.popover.min.js"></script>
+
+	<script src="//code.jquery.com/jquery-1.9.1.js"></script>
+	<script src="//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.1/js/bootstrap.min.js"></script>
+
+	<script type="text/javascript" src="//ajax.aspnetcdn.com/ajax/jquery.validate/1.12.0/jquery.validate.js"></script>
 
 	<script>
-		(function ($) {
-		$(document);
-		}(jQuery));
-		$(".alert").alert();
-		// $('signup').validate(
-		// 					 {
-		// 					  rules: {
-		// 					    name: {
-		// 					      required: true
-		// 					    },
-		// 					    email: {
-		// 					      minlength: 3,
-		// 					      email: true,
-		// 					      required: true
-		// 					    }
-		// 					  },
-							  
-		// 					  showErrors: function(errorMap, errorList) {
-								  
-		// 						  $.each( this.successList , function(index, value) {
-		// 							  $(value).popover('hide');
-		// 						  });
-								  
-								
-		// 						  $.each( errorList , function(index, value) { 
+	 	$(".alert").alert();
+	 	$(document).ready(function() {
+			$.validator.addMethod("email", function(value, element) 
+			{ 
+			return this.optional(element) || /^[a-zA-Z0-9._-]+@[a-zA-Z0-9-]+\.[a-zA-Z.]{2,5}$/i.test(value); 
+			}, "Please enter a valid email address.");
 
-		// 							  console.log(value.message);
-									  
-		// 							   var _popover = $(value.element).popover({
-		// 									trigger: 'manual',
-		// 									placement: 'top',
-		// 									content: value.message,
-		// 									template: '<div class="popover"><div class="arrow"></div><div class="popover-inner"><div class="popover-content"><p></p></div></div></div>'
-		// 								});
-								
-		// 							   _popover.data('popover').options.content = value.message;
-									   
-		// 							   $(value.element).popover('show');
+			$.validator.addMethod("username",function(value,element)
+			{
+			return this.optional(element) || /^[a-zA-Z0-9._-]{3,16}$/i.test(value); 
+			},"Names are 3-15 characters");
 
-		// 						  });
+			$.validator.addMethod("password",function(value,element)
+			{
+			return this.optional(element) || /^[A-Za-z0-9!@#$%^&*()_]{6,16}$/i.test(value); 
+			},"Passwords are 6-16 characters");
 
-								  
-		// 					  }
-							  
-							  
-							  
-		// 			});
-		// $('#signin-form').validate_popover({onsubmit: false, popoverPosition: 'top'});
-		// $('#signin-form').validate().form();
-
-		// $(function() {
-
-		//   $('#signin-form').validate_popover({onsubmit: true, popoverPosition: 'right'});
-
-		//   $(".submit-btn").click(function(ev) {
-		//   	ev.preventDefault();
-		    
-		//     $('#signin-form').validate().form();
-		//   	return true;
-		//   });
-
-		//   $(window).resize(function() {
-		// 		$.validator.reposition();
-		// 	});
-		// });
+			$("#signup").validate({
+			  rules: {
+					email: "required email",
+					username: "required username",
+					password: "required password"
+			  },
+			  showErrors: function(errorMap, errorList) {
+			    $.each(this.successList, function(index, value) {
+			      return $(value).popover("hide");
+			    });
+			    return $.each(errorList, function(index, value) {
+			      var _popover;
+			      console.log(value.message);
+			      _popover = $(value.element).popover({
+			        trigger: "manual",
+			        placement: "left",
+			        content: value.message,
+			        template: "<div class=\"popover\"><div class=\"arrow\"></div><div class=\"popover-inner\"><div class=\"popover-content\"><p></p></div></div></div>"
+			      });
+			      _popover.data("popover").options.content = value.message;
+			      return $(value.element).popover("show");
+			    });
+			  }
+			});	
+		});	
 	</script>
 </head>
 <body>
@@ -144,24 +118,23 @@
 		  		<h1>Guardian</h1>
 		  		<h3>An advanced and efficent GPS tracker for a safer night out</h3>
 			</div>
-		  	<div class="col-md-3 col-md-offset-1">
+		  	<div class="col-md-3 col-md-offset-2">
 				<form action="/signup" method="post" id="signup" accept-charset="UTF-8">
 					<div class="form-group">
-							<input type="text" class="form-control" placeholder="Enter your name" name="username" style="padding: 25px 19px;font-size: 19px;">
+							<input type="text" class="form-control" placeholder="Enter your name" name="username" style="padding: 0px 19px 0px 19px; font-size: 19px;height: 50px;">
 					</div>
 					<div class="form-group">
-						<input type="text" class="form-control" placeholder="Your email" name="email" style="padding: 25px 19px;font-size: 19px;">
+						<input type="text" class="form-control" placeholder="Your email" name="email" style="padding: 0px 19px 0px 19px; font-size: 19px;height: 50px;">
 					</div>
 					<div class="form-group">
 						<input type="password" class="form-control" placeholder="Create a password" name="password" style="padding: 0px 19px 0px 19px; font-size: 19px;height: 50px;">
 					</div>
-					<button type="submit" class="btn btn-lg btn-success btn-block submit-btn">Sign Up</button>
+					<button type="submit" class="btn btn-lg btn-success btn-block">Sign Up</button>
 				</form>
 		  	</div>
 		</div>
 	</div>
 </div>
-
 <div class="jumbotron" style="background: #FFFFFF;margin-bottom:0px;">
 	<div class="container-fluid">
 	   <div class="row" style="margin-bottom:30px;">

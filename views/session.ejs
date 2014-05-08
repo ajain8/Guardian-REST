@@ -12,6 +12,7 @@
 		<!-- Latest compiled and minified JavaScript -->
 		<script src="//netdna.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min.js"></script>
 		<script type="text/javascript">
+			 var cachedReverseGeocode = [];
 			 function setup()
 			 {
 			 	// var guardianContactArray =  session.session.guardianContactArray;
@@ -26,18 +27,22 @@
 			 }
 
 			function setupLinks(locationsArray){
-				console.log("I GET HERE");
-			 	for(var i=0;i<locationsArray.length-1;i++){
+				//console.log("I GET HERE");
+			 	for(var i=0;i<locationsArray.length;i++){
 					//console.log(i);
+					//console.log(locationsArray);
 			 		var addressHTML = document.getElementById("addr_"+i);
+			 		var location = locationsArray[i];
+			 		(function(location){
 			 		addressHTML.onclick = function(){
 			 			//map = new google.maps.Map(document.getElementById('map')); 
-			 			var focus = new google.maps.LatLng(locationsArray[i].latitude, locationsArray[i].longitude);
+			 			var focus = new google.maps.LatLng(location.latitude, location.longitude);
 			 			map.panTo(focus);
-			 			console.log("WHOOP WHOOP");
+			 			//console.log(focus);
 			 			//alert('Hello!');
 			 			return false;
-			 		}
+			 		}})(location);
+
 			 	}
 			 }
 			function loadMap(locationsArray) 
@@ -82,41 +87,49 @@
 				tableHTML += '<th class="text-center">TIME</th>';
 				tableHTML += '<th class="text-center">ADDRESS</th>';
 
-				document.addEventListener("address_found", function(e) {
-  					console.log(e.detail); // Prints "Example of an event"
-  		  // tableHTML += "<tr><td>" + locationsArray[i].timeStamp + "</td>";  
-	      //           tableHTML += "<tr><td>" + results[1].formatted_address + "</td>";
-	      //           tableHTML += "<td>" + locationsArray[i].longitude + "</td>";
-	      //           tableHTML += "</tr>";  
-
-				});
-
-
-				// results += '<th class = "text-center">Longitude</th>';
-
+				// results += '<th class = "text-center">Longitude</the>';
+				var timeout = 0;
 	            for (var i=0; i<locationsArray.length; i++) {   
+	            	var found = false;
 	            	var location = locationsArray[i];
 	            	var latlng = new google.maps.LatLng(location.latitude, location.longitude);
-	            	(function(i){ //start wrapper code
-	            	geocoder.geocode({'latLng': latlng}, function(results, status){
-	            		// console.log(i);
-	            		// console.log(results);
-	            		if (status == google.maps.GeocoderStatus.OK) {
-						      if (results[3]) {
-						      	var addressHTML = document.getElementById("addr_"+i);
-						      	addressHTML.innerHTML = results[3].formatted_address;
-						      } else {
-				          		//alert('No results found');
-						      }
-						} else {
-						      //alert('Geocoder failed due to: ' + status);
-						}
-	            	});
-	            	})(i);
-	       			tableHTML += "<tr><td>" + moment(locationsArray[i].timeStamp).format("dddd, h:mm a") + "</td>";  
-	                tableHTML += "<td><a id=\"addr_"+i+"\" href=\"#\">(" + locationsArray[i].latitude + " / "+ locationsArray[i].longitude + ")</a></td>";
-	                tableHTML += "</tr>";  
+	            	if(cachedReverseGeocode[latlng]){
+	            		found = true;
+	            		//console.log("DAT caching!");
+	            	}
+	            	else{
+		            	(function(i, latlng){ //start wrapper code
+		            	setTimeout(function(){
+		            		geocoder.geocode({'latLng': latlng}, function(results, status){
+		            		// console.log(i);
+		            		// console.log(results);
+		            		if (status == google.maps.GeocoderStatus.OK) {
+							      if (results[0]) {
+							      	var addressHTML = document.getElementById("addr_"+i);
+							      	addressHTML.innerHTML = results[0].formatted_address;
+							      	cachedReverseGeocode[latlng]=results[0].formatted_address;
+							      } else {
+					          		//alert('No results found');
+							      }
+							} else {
+							      //alert('Geocoder failed due to: ' + status);
+							}
+		            	});
+		            	}, timeout);
+		            	timeout+=500;
+		            	})(i, latlng);
+	            	}
+					tableHTML += "<tr class=\"text-center\"><td>" + moment(locationsArray[i].timeStamp).format("dddd, h:mm a") + "</td>";  
+					if(found === true){
+						tableHTML += "<td><a id=\"addr_"+i+"\" href=\"#\">" + cachedReverseGeocode[latlng] +"</a></td>";
+					}
+					else {
+						tableHTML += "<td><a id=\"addr_"+i+"\" href=\"#\">(" + locationsArray[i].latitude + " / "+ locationsArray[i].longitude + ")</a></td>";
+
+					}
+		            tableHTML += "</tr>";
 	            }
+	            //console.log(cachedReverseGeocode);
 	            // function callback(i, results, status){
 	            // 	console.log(i);
 	            // }
@@ -165,21 +178,49 @@
 		
 	</head>
 	<body>
-		<div class = "container-fluid">
+	<nav class="navbar navbar-default navbar-fixed-top" role="navigation" style="background: #FFFFFF;">
+  <div class="container-fluid">
+    <!-- Brand and toggle get grouped for better mobile display -->
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+<!--        <a class="navbar-brand" href="#">Guardian</a>    
+ --><a class="brand" href="/">            	  
+		<img class="img-circle" src="../images/Logo.png" alt="Generic placeholder image" style="width: 37px; height: 37px; margin-left:15px; margin-top:5px;">
+	</a>    
+	</div>
+
+    <!-- Collect the nav links, forms, and other content for toggling -->
+    <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+ 	  <form class="navbar-form navbar-left" role="form" action="/getSession" method="get" accept-charset="UTF-8">
+        <div class="form-group">
+          <input type="text" class="form-control" placeholder="Session ID" name="id">
+        </div>
+        <button type="submit" class="btn btn-primary">Find</button>
+      </form>
+    </div><!-- /.navbar-collapse -->
+  </div><!-- /.container-fluid -->
+</nav>
+
+		<div class = "container-fluid" style="padding-top:40px;">
 			<div class="row">
 			<div class="text-center">
-				<h2><span class="fa"></span> <%= session.session.email %>'s Session</h2>
+				<h2><span class="fa"></span> <%= session.session.name %>'s Session</h2>
 <!-- 				<button type="button" class="btn btn-danger btn-xs">Call</button>
 				<button type="button" class="btn btn-primary btn-xs">E-mail</button>
  -->			</div>
 			</div>
 			<div class="row">
 				<div class="col-md-12">
-					<div id="map" style="width:100%;height:350px;margin-top:10px;margin-bottom:20px"></div>
+					<div id="map" style="height:250px;margin-bottom:20px"></div>
 				</div>
 			</div>
 			<div class="row">
-			<div class="col-sm-6 col-sm-offset-2">
+			<div class="col-md-6 col-md-offset-2">
 			<div>
 				<b>START | </b><span id="startDate">Date</span>
 			</div>
@@ -187,17 +228,17 @@
 				<b>END |  </b><span id="endDate">Date</span>
 			</div>
 			<div>	
-				<b>GUARDIAN |  </b>
+				<b>GUARDIANS |  </b>
 				<% if (contactArray.length) { %>
-				    <% contactArray.forEach(function(contact){ %>
-				      <%= contact.name %>
-				    <% }) %>
+				    <% for(var i=0;i<contactArray.length;i++){ %>
+				    	 <% var contact = contactArray[i]; %>
+				      	 <%= contact.name %><% if(i!=contactArray.length-1){ %>,
+				    	<% } %>
+				    <% } %>
 				<% } %>
 			</div>
 
- 	
-
-			<div id="Table" style="margin-top:20px"></div>
+ 			<div id="Table" style="margin-top:20px;"></div>
 			</div>
 			</div>
 		</div>
